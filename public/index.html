@@ -2098,6 +2098,10 @@
     if (data.whatsappNumero) {
       btnAbrirWhatsapp.href = `https://wa.me/${data.whatsappNumero}?text=${encodeURIComponent('Hola! Tengo una consulta sobre un producto.')}`;
       btnAbrirWhatsapp.style.display = 'flex';
+      // Con WhatsApp configurado, reemplaza al asistente de chat en vez de
+      // convivir los dos botones flotantes.
+      btnAbrirChat.style.display = 'none';
+      panelChat.classList.remove('abierto');
     }
   }).catch(() => {});
 

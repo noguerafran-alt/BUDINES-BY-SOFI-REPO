@@ -407,6 +407,12 @@ module.exports = {
   TRANSFERENCIA_CBU: process.env.TRANSFERENCIA_CBU || '',
   TRANSFERENCIA_BANCO: process.env.TRANSFERENCIA_BANCO || '',
 
+  // Numero de WhatsApp para el boton flotante "Hablar por WhatsApp" del
+  // catalogo publico (distinto del chatbot con WhatsApp Cloud API de mas
+  // abajo). Formato: codigo de pais + numero, sin +, espacios ni guiones
+  // (ej. Argentina: 54 9 11 6823-9163 -> "5491168239163").
+  WHATSAPP_NUMERO_CONTACTO: process.env.WHATSAPP_NUMERO_CONTACTO || '',
+
   /* ------------------------------------------------------------
    * 5.1) EMAIL — mail de confirmacion con los datos de transferencia
    *    (Gmail SMTP via nodemailer, sin sumar un proveedor nuevo).
@@ -418,7 +424,7 @@ module.exports = {
   EMAIL_PORT: Number(process.env.EMAIL_PORT || 465),
   EMAIL_USER: process.env.EMAIL_USER || '',
   EMAIL_APP_PASSWORD: process.env.EMAIL_APP_PASSWORD || '',
-  EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'LON Philosophy',
+  EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'Budines by Sofi',
 
   /* ------------------------------------------------------------
    * 6) SUBIDA DE FOTOS DE PRODUCTOS
