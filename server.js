@@ -521,8 +521,8 @@ app.post('/admin/cafe-escaneado', limiteAdmin, async (req, res) => {
       regaloDesbloqueado: resultado.regaloDesbloqueado,
     });
   } catch (err) {
-    console.error('Error registrando café:', err.message);
-    res.status(500).json({ error: 'No se pudo registrar el café.' });
+    console.error('Error registrando budín:', err.message);
+    res.status(500).json({ error: 'No se pudo registrar el budín.' });
   }
 });
 

@@ -3,20 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LON Philosophy</title>
+<title>Budines by Sofi</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
-    --bg:#F6EFE4; --bg-alt:#EDE3D0; --ink:#3B1220; --ink-muted:#8C5B66;
-    --line:rgba(59,18,32,0.18); --accent:#A9762A; --accent-soft:rgba(169,118,42,0.14);
-    --stamp-green:#2F7D4F; --stamp-green-soft:rgba(47,125,79,0.14);
-    --stamp-red:#B14A2E; --stamp-red-soft:rgba(177,74,46,0.14);
-    --field-bg:#FFFFFF; --field-text:#3B1220; --radius:3px;
-    --bg-header:#5E1E2B; --header-text:#FFF3E5; --header-line:rgba(0,0,0,0.22);
-    --accent-terracota:#A8471F; --accent-terracota-soft:rgba(168,71,31,0.12);
+    --bg:#FBEAE5; --bg-alt:#F3D7D3; --ink:#4A1F1F; --ink-muted:#8C6260;
+    --line:rgba(74,31,31,0.16); --accent:#7A1F1F; --accent-soft:rgba(122,31,31,0.12);
+    --stamp-green:#5C7A65; --stamp-green-soft:rgba(92,122,101,0.14);
+    --stamp-red:#7A1F1F; --stamp-red-soft:rgba(122,31,31,0.14);
+    --field-bg:#FFFFFF; --field-text:#4A1F1F; --radius:14px;
+    --bg-header:#5C7A65; --header-text:#FBEAE5; --header-line:rgba(0,0,0,0.15);
+    --accent-terracota:#7A1F1F; --accent-terracota-soft:rgba(122,31,31,0.12);
+    --sage:#5C7A65; --sage-dark:#46604F; --sage-soft:rgba(92,122,101,0.14);
   }
   *{ box-sizing:border-box; }
   body{
@@ -26,7 +27,7 @@
     -webkit-font-smoothing:antialiased;
   }
   .eyebrow{
-    font-family:'Fraunces', serif; font-size:11px; letter-spacing:0.12em;
+    font-family:'Baloo 2', sans-serif; font-size:11px; letter-spacing:0.12em;
     text-transform:uppercase; color:var(--ink-muted);
   }
 
@@ -58,11 +59,11 @@
 
   .login-box{ width:100%; max-width:280px; text-align:left; }
   .login-box label{
-    display:block; font-family:'Fraunces', serif; font-size:10px; letter-spacing:0.08em;
+    display:block; font-family:'Baloo 2', sans-serif; font-size:10px; letter-spacing:0.08em;
     text-transform:uppercase; color:var(--ink-muted); margin:0 0 6px 1px;
   }
   .login-box input, .login-box select{
-    width:100%; padding:13px 14px; font-size:15px; font-family:'Fraunces', serif;
+    width:100%; padding:13px 14px; font-size:15px; font-family:'Baloo 2', sans-serif;
     border-radius:var(--radius); border:1px solid var(--line); background:var(--field-bg);
     margin-bottom:16px; color:var(--field-text);
   }
@@ -70,7 +71,7 @@
   .login-box input:focus-visible, .login-box select:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
   .opcional-tag{ text-transform:none; letter-spacing:0; font-weight:400; }
   .login-box button{
-    width:100%; padding:14px; font-size:15px; font-weight:600; font-family:'Fraunces', serif;
+    width:100%; padding:14px; font-size:15px; font-weight:600; font-family:'Baloo 2', sans-serif;
     border:none; border-radius:var(--radius); background:var(--ink); color:var(--bg); cursor:pointer;
     margin-bottom:10px;
   }
@@ -80,7 +81,7 @@
 
   #vistaCatalogo{ padding:16px 24px 40px; flex:1; }
   #vistaCatalogo .volver{
-    background:none; border:none; color:var(--ink-muted); font-family:'Fraunces', serif;
+    background:none; border:none; color:var(--ink-muted); font-family:'Baloo 2', sans-serif;
     font-size:28px; cursor:pointer; padding:0; text-decoration:none; white-space:nowrap; line-height:1;
   }
   .btn-volver-flecha{
@@ -103,7 +104,6 @@
   .barra-superior-catalogo .volver{ justify-self:center; color:var(--header-text); }
   .logo-barra-catalogo{
     height:50px; width:auto; object-fit:contain; justify-self:center;
-    filter:brightness(0) invert(1); opacity:.92;
   }
   .btn-icono-simetrico{
     background:none; border:none; color:var(--ink-muted); cursor:pointer; padding:0;
@@ -127,8 +127,8 @@
   }
   .item-carrito .foto-item-carrito img{ width:100%; height:100%; object-fit:contain; }
   .item-carrito .info-item-carrito{ flex:1; min-width:0; }
-  .item-carrito .nombre-item-carrito{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; color:var(--ink); }
-  .item-carrito .precio-item-carrito{ font-family:'Fraunces', serif; font-size:13px; color:var(--accent); margin-top:2px; }
+  .item-carrito .nombre-item-carrito{ font-family:'Baloo 2', sans-serif; font-weight:600; font-size:14px; color:var(--ink); }
+  .item-carrito .precio-item-carrito{ font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--accent); margin-top:2px; }
   .item-carrito .controles-item-carrito{ display:flex; align-items:center; gap:10px; flex:0 0 auto; }
   .item-carrito .selector-cantidad-carrito{
     display:flex; align-items:center; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
@@ -155,7 +155,7 @@
     display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   }
   .total-carrito{
-    display:flex; justify-content:space-between; font-family:'Fraunces', serif; font-weight:700;
+    display:flex; justify-content:space-between; font-family:'Baloo 2', sans-serif; font-weight:700;
     font-size:16px; color:var(--accent); padding:14px 0; margin-bottom:12px;
   }
   .carrito-vacio{ text-align:center; color:var(--ink-muted); padding:40px 0; }
@@ -163,10 +163,19 @@
   #loginClienteLogueado.oculto, #loginClienteFormulario.oculto{ display:none; }
   .tarjeta-fidelidad-cafe{
     background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius);
-    padding:14px; text-align:center;
+    padding:14px; text-align:center; position:relative; overflow:hidden;
+  }
+  .tarjeta-fidelidad-cafe::before{
+    content:''; position:absolute; top:-26px; right:-26px; width:72px; height:72px;
+    background:
+      radial-gradient(circle at 30% 30%, var(--sage) 0 16px, transparent 17px),
+      radial-gradient(circle at 70% 30%, var(--sage) 0 16px, transparent 17px),
+      radial-gradient(circle at 30% 70%, var(--sage) 0 16px, transparent 17px),
+      radial-gradient(circle at 70% 70%, var(--sage) 0 16px, transparent 17px);
+    opacity:.16; pointer-events:none;
   }
   .puntos-fidelidad-cafe{
-    font-family:'Fraunces', serif; font-size:22px; letter-spacing:0.08em; color:var(--ink);
+    font-family:'Baloo 2', sans-serif; font-size:22px; letter-spacing:0.08em; color:var(--ink);
     margin-bottom:10px;
   }
   .qr-fidelidad-cliente{ width:160px; height:160px; display:block; margin:0 auto; border-radius:var(--radius); background:#fff; padding:8px; }
@@ -199,7 +208,7 @@
   .panel-chat.abierto{ display:flex; }
   .panel-chat-header{
     background:var(--ink); color:var(--bg); padding:12px 14px;
-    font-family:'Fraunces', serif; font-weight:600; font-size:14px;
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:14px;
     display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
   }
   .panel-chat-header button{ background:none; border:none; color:var(--bg); font-size:16px; cursor:pointer; }
@@ -229,7 +238,7 @@
   .btn-mostrar-buscador{
     display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--line);
     color:var(--ink-muted); border-radius:var(--radius); padding:0 14px; height:40px; box-sizing:border-box;
-    font-size:14px; font-family:'Fraunces', serif; font-style:italic; font-weight:600; cursor:pointer; flex:0 0 auto;
+    font-size:14px; font-family:'Baloo 2', sans-serif; font-style:italic; font-weight:600; cursor:pointer; flex:0 0 auto;
     transition:border-color 150ms ease, color 150ms ease;
   }
   .btn-mostrar-buscador:hover, .btn-mostrar-buscador.activo{ border-color:var(--accent-terracota); color:var(--accent-terracota); }
@@ -263,7 +272,7 @@
     .carrusel-pista .item-catalogo-publico{ flex-basis:150px; width:150px; }
   }
   .buscador-catalogo{
-    width:100%; max-width:420px; padding:12px 14px; font-size:14px; font-family:'Fraunces', serif;
+    width:100%; max-width:420px; padding:12px 14px; font-size:14px; font-family:'Baloo 2', sans-serif;
     border-radius:var(--radius); border:1px solid var(--line); background:var(--field-bg);
     color:var(--field-text); margin:0 0 18px; text-transform:uppercase;
   }
@@ -271,7 +280,7 @@
   .buscador-catalogo:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
   .seccion-categoria-catalogo{ margin-bottom:28px; }
   .titulo-categoria-catalogo{
-    font-family:'Fraunces', serif; font-style:italic; font-weight:600; font-size:19px;
+    font-family:'Baloo 2', sans-serif; font-style:italic; font-weight:600; font-size:19px;
     letter-spacing:0.02em; color:var(--accent-terracota);
     margin:0 0 12px;
   }
@@ -299,7 +308,7 @@
     display:inline-flex; align-items:center; flex:0 0 auto; white-space:nowrap;
     background:none; border:1px solid var(--line); color:var(--ink-muted);
     border-radius:var(--radius); padding:0 14px; height:40px; box-sizing:border-box;
-    font-family:'Fraunces', serif; font-style:italic; font-weight:600; font-size:16px; letter-spacing:0.01em;
+    font-family:'Baloo 2', sans-serif; font-style:italic; font-weight:600; font-size:16px; letter-spacing:0.01em;
     cursor:pointer; transition:border-color 150ms ease, color 150ms ease, background 150ms ease;
   }
   .tab-categoria-catalogo:hover{ border-color:var(--accent-terracota); color:var(--accent-terracota); }
@@ -313,7 +322,7 @@
   }
   .tab-subcategoria-catalogo{
     background:none; border:1px solid var(--line); color:var(--ink-muted);
-    border-radius:var(--radius); padding:6px 12px; font-size:13px; font-family:'Fraunces', serif;
+    border-radius:var(--radius); padding:6px 12px; font-size:13px; font-family:'Baloo 2', sans-serif;
     cursor:pointer; transition:border-color 150ms ease, color 150ms ease, background 150ms ease;
   }
   .tab-subcategoria-catalogo:hover{ border-color:var(--accent-terracota); color:var(--accent-terracota); }
@@ -335,7 +344,7 @@
   .item-catalogo-publico .foto-item{
     width:100%; aspect-ratio:1/1; background:var(--bg); position:relative;
     display:flex; align-items:center; justify-content:center;
-    color:var(--ink-muted); font-size:11px; font-family:'Fraunces', serif;
+    color:var(--ink-muted); font-size:11px; font-family:'Baloo 2', sans-serif;
     overflow:hidden;
   }
   .item-catalogo-publico .foto-item img{ width:100%; height:100%; object-fit:contain; display:block; }
@@ -346,28 +355,28 @@
   .mockup-icono svg{ width:100%; height:auto; display:block; }
   .item-catalogo-publico .info-item{ padding:10px 12px; flex:1; display:flex; flex-direction:column; gap:6px; }
   .item-catalogo-publico .info-item .nombre{
-    font-family:'Fraunces', serif; font-weight:600; color:var(--ink); font-size:14.5px; line-height:1.25;
+    font-family:'Baloo 2', sans-serif; font-weight:600; color:var(--ink); font-size:14.5px; line-height:1.25;
   }
   .item-catalogo-publico .info-item .meta{
     display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;
   }
   .item-catalogo-publico .info-item .precio-item{
-    font-family:'Fraunces', serif; font-size:14px; font-weight:700; color:var(--accent);
+    font-family:'Baloo 2', sans-serif; font-size:14px; font-weight:700; color:var(--accent);
     font-variant-numeric:tabular-nums;
   }
   .item-catalogo-publico .info-item .estado-stock{
-    font-family:'Fraunces', serif; font-size:11px; white-space:nowrap; letter-spacing:0.02em;
+    font-family:'Baloo 2', sans-serif; font-size:11px; white-space:nowrap; letter-spacing:0.02em;
   }
   .item-catalogo-publico .info-item .estado-stock.disponible{ color:var(--stamp-green); }
   .item-catalogo-publico .info-item .estado-stock.agotado{ color:var(--stamp-red); }
   .item-catalogo-publico button{
     background:none; border:1px solid var(--accent); color:var(--accent); border-radius:var(--radius);
-    padding:8px 10px; font-size:12.5px; font-family:'Fraunces', serif; cursor:pointer; margin-top:auto;
+    padding:8px 10px; font-size:12.5px; font-family:'Baloo 2', sans-serif; cursor:pointer; margin-top:auto;
   }
   .detalle-producto .foto-detalle{
     width:100%; max-width:320px; aspect-ratio:1/1; border-radius:var(--radius); overflow:hidden;
     background:var(--bg); display:flex; align-items:center; justify-content:center; position:relative;
-    color:var(--ink-muted); font-size:12px; font-family:'Fraunces', serif; margin:0 auto 16px;
+    color:var(--ink-muted); font-size:12px; font-family:'Baloo 2', sans-serif; margin:0 auto 16px;
   }
   .detalle-producto .foto-detalle img{ width:100%; height:100%; object-fit:contain; display:block; }
   .detalle-producto .foto-detalle .mockup-icono{ max-width:180px; }
@@ -380,10 +389,10 @@
   }
   .detalle-producto .miniaturas-detalle button.activa{ border-color:var(--accent); border-width:2px; }
   .detalle-producto .miniaturas-detalle img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .detalle-producto .nombre{ font-family:'Fraunces', serif; font-weight:600; font-size:24px; color:var(--ink); margin:0 0 6px; }
-  .detalle-producto .meta{ font-family:'Fraunces', serif; font-size:13px; color:var(--ink-muted); margin-bottom:4px; }
+  .detalle-producto .nombre{ font-family:'Baloo 2', sans-serif; font-weight:600; font-size:24px; color:var(--ink); margin:0 0 6px; }
+  .detalle-producto .meta{ font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink-muted); margin-bottom:4px; }
   .detalle-producto .precio{
-    font-family:'Fraunces', serif; font-size:22px; font-weight:700; color:var(--accent);
+    font-family:'Baloo 2', sans-serif; font-size:22px; font-weight:700; color:var(--accent);
     font-variant-numeric:tabular-nums; margin-top:14px;
   }
   .detalle-producto .descripcion-producto{
@@ -391,13 +400,13 @@
   }
   .detalle-producto .btn-comprar{
     display:block; width:100%; max-width:320px; margin:18px auto 0; padding:14px; font-size:16px; font-weight:700;
-    font-family:'Fraunces', serif; border:none; border-radius:var(--radius); background:var(--accent);
+    font-family:'Baloo 2', sans-serif; border:none; border-radius:var(--radius); background:var(--accent);
     color:#FFFFFF; cursor:pointer;
   }
   .detalle-producto .btn-comprar:disabled{ opacity:.5; cursor:default; }
   .detalle-producto .btn-agregar-carrito{
     display:block; width:100%; max-width:320px; margin:10px auto 0; padding:13px; font-size:15px; font-weight:600;
-    font-family:'Fraunces', serif; border:1px solid var(--accent); border-radius:var(--radius); background:none;
+    font-family:'Baloo 2', sans-serif; border:1px solid var(--accent); border-radius:var(--radius); background:none;
     color:var(--accent); cursor:pointer;
   }
   .detalle-producto .btn-agregar-carrito:disabled{ opacity:.5; cursor:default; }
@@ -405,7 +414,7 @@
   #catalogoDetalleContenido{ max-width:900px; margin:0 auto; text-align:center; }
   .seccion-relacionados{ margin-top:36px; max-width:900px; text-align:left; }
   .seccion-relacionados h3{
-    font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--ink); margin:0 0 12px; text-align:center;
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:18px; color:var(--ink); margin:0 0 12px; text-align:center;
   }
   .grilla-relacionados{
     display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:14px;
@@ -433,11 +442,11 @@
   .checkout-box{ max-width:340px; }
   .checkout-resumen{
     text-align:left; padding:12px 14px; border:1px solid var(--line); border-radius:var(--radius);
-    background:var(--bg-alt); margin-bottom:16px; font-size:14px; font-family:'Fraunces', serif;
+    background:var(--bg-alt); margin-bottom:16px; font-size:14px; font-family:'Baloo 2', sans-serif;
   }
   .checkout-resumen .nombre{ font-weight:600; color:var(--ink); }
   .checkout-resumen .precio{
-    font-family:'Fraunces', serif; color:var(--accent); font-weight:700;
+    font-family:'Baloo 2', sans-serif; color:var(--accent); font-weight:700;
     font-variant-numeric:tabular-nums; margin-top:4px;
   }
   .checkout-resumen .item-resumen-carrito{ display:flex; justify-content:space-between; gap:8px; padding:4px 0; }
@@ -450,20 +459,20 @@
   .metodo-envio-opciones{ display:flex; gap:10px; margin-bottom:6px; }
   .metodo-envio-opciones label{
     flex:1; display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0;
-    font-family:'Fraunces', serif; font-size:13px; color:var(--ink); padding:10px; border:1px solid var(--line);
+    font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); padding:10px; border:1px solid var(--line);
     border-radius:var(--radius); cursor:pointer;
   }
   .metodo-envio-opciones input{ width:auto; margin:0; }
   #camposDomicilio.oculto{ display:none; }
   .envio-estimado-checkout{
-    font-family:'Fraunces', serif; font-size:13px; color:var(--ink); background:var(--bg-alt);
+    font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); background:var(--bg-alt);
     border:1px solid var(--line); border-radius:var(--radius); padding:8px 10px; margin-top:-6px; margin-bottom:16px;
   }
   .envio-estimado-checkout.oculto{ display:none; }
   .metodo-pago-opciones{ display:flex; gap:10px; margin-bottom:6px; }
   .metodo-pago-opciones label{
     flex:1; display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0;
-    font-family:'Fraunces', serif; font-size:13px; color:var(--ink); padding:10px; border:1px solid var(--line);
+    font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); padding:10px; border:1px solid var(--line);
     border-radius:var(--radius); cursor:pointer;
   }
   .metodo-pago-opciones input{ width:auto; margin:0; }
@@ -472,16 +481,16 @@
     margin-top:10px; padding:12px 14px; border:1px solid var(--accent); border-radius:var(--radius);
     background:var(--accent-soft);
   }
-  .panel-transferencia p{ margin:0 0 8px; font-size:12px; color:var(--ink-muted); line-height:1.4; font-family:'Fraunces', serif; }
+  .panel-transferencia p{ margin:0 0 8px; font-size:12px; color:var(--ink-muted); line-height:1.4; font-family:'Baloo 2', sans-serif; }
   .panel-transferencia p:last-child{ margin-bottom:0; }
-  .transferencia-datos{ font-family:'Fraunces', serif; font-size:13px; color:var(--ink); margin-bottom:8px; }
+  .transferencia-datos{ font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); margin-bottom:8px; }
   .transferencia-datos div{ padding:2px 0; }
   .transferencia-datos span.etiqueta{ color:var(--ink-muted); margin-right:6px; }
-  .checkout-mensaje{ font-size:13px; margin-top:6px; min-height:16px; font-family:'Fraunces', serif; }
+  .checkout-mensaje{ font-size:13px; margin-top:6px; min-height:16px; font-family:'Baloo 2', sans-serif; }
   .checkout-mensaje.error{ color:var(--stamp-red); }
   .checkout-mensaje.ok{ color:var(--stamp-green); }
   .btn-volver-checkout{
-    background:none; border:none; color:var(--ink-muted); font-family:'Fraunces', serif;
+    background:none; border:none; color:var(--ink-muted); font-family:'Baloo 2', sans-serif;
     font-size:13px; text-decoration:underline; cursor:pointer; padding:0; margin-top:4px;
   }
 
@@ -507,7 +516,7 @@
   <div class="barra-superior-catalogo barra-superior-fullscreen">
     <button type="button" class="volver btn-volver-flecha" id="btnVolverCarrito" title="Volver al catálogo" aria-label="Volver al catálogo">←</button>
     <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
-      <img src="/logo-catalogo.png" alt="LON" class="logo-barra-catalogo">
+      <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
     </a>
     <span></span>
   </div>
@@ -524,7 +533,7 @@
   <div class="barra-superior-catalogo barra-superior-fullscreen">
     <button type="button" class="volver btn-volver-flecha" id="btnVolverLoginCliente" title="Volver al catálogo" aria-label="Volver al catálogo">←</button>
     <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
-      <img src="/logo-catalogo.png" alt="LON" class="logo-barra-catalogo">
+      <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
     </a>
     <span></span>
   </div>
@@ -533,10 +542,10 @@
     <div id="loginClienteLogueado" class="oculto" style="margin-bottom:16px;">
       <p style="margin:0 0 14px;">Hola, <strong id="nombreClienteLogueado"></strong>.</p>
       <div class="tarjeta-fidelidad-cafe">
-        <p class="eyebrow" style="margin:0 0 8px;">Café de fidelidad</p>
+        <p class="eyebrow" style="margin:0 0 8px;">Budines de fidelidad</p>
         <div id="puntosFidelidadCafe" class="puntos-fidelidad-cafe">Cargando...</div>
         <img id="qrFidelidadCliente" class="qr-fidelidad-cliente oculto" alt="Tu código QR de fidelidad">
-        <p style="font-size:12px; color:var(--ink-muted); margin:8px 0 0;">Mostrá este QR en el local para cargar tu café. Al completar 3, el próximo escaneo te entrega un regalo sorpresa.</p>
+        <p style="font-size:12px; color:var(--ink-muted); margin:8px 0 0;">Mostrá este QR en el local para cargar tu budín. Al completar 3, el próximo escaneo te entrega un regalo sorpresa.</p>
       </div>
       <button type="button" id="btnSalirCliente" style="width:100%; margin-top:16px;">Cerrar sesión</button>
     </div>
@@ -553,7 +562,7 @@
   <div class="barra-superior-catalogo barra-superior-fullscreen">
     <button type="button" class="volver btn-volver-flecha" id="btnVolverFlechaCheckout" title="Volver" aria-label="Volver">←</button>
     <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
-      <img src="/logo-catalogo.png" alt="LON" class="logo-barra-catalogo">
+      <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
     </a>
     <span></span>
   </div>
@@ -627,7 +636,7 @@
       <button type="button" class="volver btn-volver-flecha" id="btnVolverDeDetalle" title="Volver al catálogo" aria-label="Volver al catálogo" style="display:none;">←</button>
     </div>
     <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
-      <img src="/logo-catalogo.png" alt="LON" class="logo-barra-catalogo">
+      <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
     </a>
     <div class="acciones-header-catalogo">
       <button class="btn-icono-simetrico btn-carrito-header" id="btnAbrirCarrito" title="Carrito" aria-label="Carrito">
@@ -652,7 +661,7 @@
 </div>
 
 <div class="footer-legal">
-  © 2026 FLN Data Analysis — Todos los derechos reservados · Software licenciado para uso exclusivo de LON Philosophy
+  © 2026 FLN Data Analysis — Todos los derechos reservados · Software licenciado para uso exclusivo de Budines by Sofi
   · <a href="/privacidad.html">Privacidad</a> · <a href="/terminos.html">Términos</a>
   <br><a class="acceso-admin-link" href="/admin.html" style="margin-top:8px; display:inline-block;">Acceso admin →</a>
 </div>
@@ -1467,14 +1476,14 @@
       if (data.cafesContador >= data.cafesParaGratis) {
         puntosFidelidadCafe.textContent = '🎁 ¡Tenés un regalo esperando!';
       } else {
-        const llenos = '☕'.repeat(data.cafesContador);
+        const llenos = '🧁'.repeat(data.cafesContador);
         const vacios = '⚪'.repeat(Math.max(0, data.cafesParaGratis - data.cafesContador));
         puntosFidelidadCafe.textContent = `${llenos}${vacios}  ${data.cafesContador}/${data.cafesParaGratis}`;
       }
       qrFidelidadCliente.src = data.qrDataUrl;
       qrFidelidadCliente.classList.remove('oculto');
     } catch (err) {
-      puntosFidelidadCafe.textContent = 'No se pudo cargar tu tarjeta de café.';
+      puntosFidelidadCafe.textContent = 'No se pudo cargar tu tarjeta de budín.';
     }
   }
 
@@ -2065,7 +2074,7 @@
 
 <div class="panel-chat" id="panelChat">
   <div class="panel-chat-header">
-    <span>Asistente LON Philosophy</span>
+    <span>Asistente Budines by Sofi</span>
     <button id="btnCerrarChat" aria-label="Cerrar chat">✕</button>
   </div>
   <div class="panel-chat-mensajes" id="chatMensajes"></div>

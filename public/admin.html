@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LON Philosophy - Admin</title>
+<title>Budines by Sofi - Admin</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://unpkg.com">
@@ -588,7 +588,7 @@
     <div class="modo-escaner-opciones">
       <button type="button" class="btn-modo-escaner activo" id="btnModoVenta" data-modo="venta">📷 QR / código de barras (venta)</button>
       <button type="button" class="btn-modo-escaner" id="btnModoLector" data-modo="lector">⌨️ Vender por lector</button>
-      <button type="button" class="btn-modo-escaner" id="btnModoCafe" data-modo="cafe">☕ Café (fidelidad)</button>
+      <button type="button" class="btn-modo-escaner" id="btnModoCafe" data-modo="cafe">🧁 Budín (fidelidad)</button>
     </div>
     <div id="reader"></div>
     <div id="bloqueVentaLector" style="display:none; max-width:480px; margin:16px auto 0; padding:0 24px;">
@@ -855,10 +855,10 @@
 
 <div class="overlay" id="overlayCafe">
   <div class="modal" id="modalCafe">
-    <p class="label">Café de fidelidad</p>
+    <p class="label">Budín de fidelidad</p>
     <h2 id="cafeNombreCliente" style="margin:0 0 4px;">-</h2>
     <p class="sku-chico" id="cafeProgresoTexto">-</p>
-    <p style="font-size:13px; color:var(--ink-muted); margin:14px 0 6px;">¿Cuántos cafés le cargás?</p>
+    <p style="font-size:13px; color:var(--ink-muted); margin:14px 0 6px;">¿Cuántos budines le cargás?</p>
     <div class="selector-cantidad-cafe">
       <button type="button" id="btnCafeMenos">−</button>
       <span id="cafeCantidadValor">1</span>
@@ -1968,7 +1968,7 @@
       cafeNombreCliente.textContent = data.nombre;
       cafeProgresoTexto.textContent = data.cafesContador >= data.cafesParaGratis
         ? 'Tiene un regalo esperando — confirmá para entregárselo.'
-        : `Lleva ${data.cafesContador}/${data.cafesParaGratis} cafés.`;
+        : `Lleva ${data.cafesContador}/${data.cafesParaGratis} budines.`;
       mensajeCafeModal.textContent = '';
       mensajeCafeModal.style.color = '';
       btnConfirmarCafe.disabled = false;
@@ -2002,9 +2002,9 @@
       if (data.esGratis) {
         statusBar.textContent = `🎁 ¡${data.regalosEntregados > 1 ? `${data.regalosEntregados} REGALOS ENTREGADOS` : 'REGALO ENTREGADO'}! ${data.nombre} — ahora va ${data.cafesContador}/${data.cafesParaGratis}`;
       } else if (data.regaloDesbloqueado) {
-        statusBar.textContent = `🎉 ${data.nombre} completó ${data.cafesParaGratis} cafés — tiene un regalo esperando. Escaneá de nuevo para entregárselo.`;
+        statusBar.textContent = `🎉 ${data.nombre} completó ${data.cafesParaGratis} budines — tiene un regalo esperando. Escaneá de nuevo para entregárselo.`;
       } else {
-        statusBar.textContent = `☕ ${data.nombre} — ${data.cafesContador}/${data.cafesParaGratis}`;
+        statusBar.textContent = `🧁 ${data.nombre} — ${data.cafesContador}/${data.cafesParaGratis}`;
       }
       setTimeout(() => {
         isBusy = false;

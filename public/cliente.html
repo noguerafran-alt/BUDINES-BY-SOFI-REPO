@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LON Philosophy - Escanear producto</title>
+<title>Budines by Sofi - Escanear producto</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://unpkg.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   :root{
-    --bg:#F6EFE4; --bg-alt:#EDE3D0; --ink:#3B1220; --ink-muted:#8C5B66;
-    --line:rgba(59,18,32,0.18); --accent:#A9762A; --accent-soft:rgba(169,118,42,0.14);
-    --stamp-green:#2F7D4F; --stamp-green-soft:rgba(47,125,79,0.14);
-    --stamp-red:#B14A2E; --stamp-red-soft:rgba(177,74,46,0.14);
-    --field-bg:#FFFFFF; --field-text:#3B1220; --radius:3px;
-    --bg-header:#5E1E2B; --header-text:#FFF3E5; --header-line:rgba(0,0,0,0.22);
+    --bg:#FBEAE5; --bg-alt:#F3D7D3; --ink:#4A1F1F; --ink-muted:#8C6260;
+    --line:rgba(74,31,31,0.16); --accent:#7A1F1F; --accent-soft:rgba(122,31,31,0.12);
+    --stamp-green:#5C7A65; --stamp-green-soft:rgba(92,122,101,0.14);
+    --stamp-red:#C1352E; --stamp-red-soft:rgba(193,53,46,0.14);
+    --field-bg:#FFFFFF; --field-text:#4A1F1F; --radius:14px;
+    --bg-header:#5C7A65; --header-text:#FBEAE5; --header-line:rgba(0,0,0,0.15);
   }
   *{ box-sizing:border-box; }
   body{
@@ -37,7 +37,6 @@
   .barra-superior-catalogo .volver{ justify-self:start; color:var(--header-text); }
   .logo-barra-catalogo{
     height:50px; width:auto; object-fit:contain; justify-self:center;
-    filter:brightness(0) invert(1); opacity:.92;
   }
   .btn-volver-flecha{
     display:inline-flex; align-items:center; justify-content:center;
@@ -105,11 +104,11 @@
     margin:0 0 6px; letter-spacing:0.1em; text-transform:uppercase;
   }
   .modal h2{
-    font-family:'Fraunces', serif; font-weight:600; font-size:21px; margin:0 0 2px; line-height:1.2;
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:21px; margin:0 0 2px; line-height:1.2;
     color:var(--ink);
   }
   .modal .sku-chico{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-muted); margin:0 0 18px; }
-  .modal .precio{ font-family:'Fraunces', serif; font-size:30px; font-weight:600; color:var(--accent); margin:0 0 22px; }
+  .modal .precio{ font-family:'Baloo 2', sans-serif; font-size:30px; font-weight:600; color:var(--accent); margin:0 0 22px; }
   .modal .precio.no-encontrado{ font-family:'Archivo', sans-serif; font-size:14px; font-weight:500; color:var(--stamp-red); }
 
   .stamp-in{ animation: stampDown 320ms cubic-bezier(.2,.9,.3,1.2); }
@@ -144,7 +143,7 @@
 <div class="barra-superior-catalogo">
   <a class="volver btn-volver-flecha" href="/" title="Volver al catálogo" aria-label="Volver al catálogo">←</a>
   <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
-    <img src="/logo-catalogo.png" alt="LON" class="logo-barra-catalogo">
+    <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
   </a>
   <span></span>
 </div>
@@ -172,7 +171,7 @@
 </div>
 
 <div class="footer-legal">
-  © 2026 FLN Data Analysis — Todos los derechos reservados · Software licenciado para uso exclusivo de LON Philosophy
+  © 2026 FLN Data Analysis — Todos los derechos reservados · Software licenciado para uso exclusivo de Budines by Sofi
   · <a href="/privacidad.html">Privacidad</a> · <a href="/terminos.html">Términos</a>
 </div>
 
