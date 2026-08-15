@@ -1974,8 +1974,7 @@ async function sincronizarStockPedido(sheetsClient, pedido, nuevoEstado) {
 app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
   try {
     const {
-      skuGeneral, cantidad, nombre, email, telefono,
-      direccion, ciudad, provincia, codigoPostal, metodoEnvio, notas,
+      skuGeneral, cantidad, nombre, email, telefono, notas,
       metodoPago,
     } = req.body;
 
@@ -1999,9 +1998,6 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
       if (cantidadNum === null) {
         return res.status(400).json({ error: 'La cantidad tiene que ser un número entero entre 1 y 100.' });
       }
-    }
-    if (metodoEnvio === 'Envio a domicilio' && (!direccion || !ciudad)) {
-      return res.status(400).json({ error: 'Para envio a domicilio hace falta al menos direccion y ciudad.' });
     }
     if (metodoPago !== 'payway' && metodoPago !== 'transferencia') {
       return res.status(400).json({ error: 'Elegi un metodo de pago valido (Payway o transferencia).' });
@@ -2045,11 +2041,11 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
       nombreCliente: sanitizarTexto(nombre, 150),
       emailCliente: sanitizarTexto(email, 254),
       telefonoCliente: sanitizarTelefono(telefono),
-      direccion: sanitizarTexto(direccion, 250),
-      ciudad: sanitizarTexto(ciudad, 100),
-      provincia: sanitizarTexto(provincia, 100),
-      codigoPostal: sanitizarCodigoPostal(codigoPostal),
-      metodoEnvio: metodoEnvio || 'Retiro en el local',
+      direccion: '',
+      ciudad: '',
+      provincia: '',
+      codigoPostal: '',
+      metodoEnvio: 'A coordinar por WhatsApp',
       estado: 'Pendiente de pago',
       transportista: '',
       numeroSeguimiento: '',
@@ -2122,8 +2118,7 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
 app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
   try {
     const {
-      items, nombre, email, telefono,
-      direccion, ciudad, provincia, codigoPostal, metodoEnvio, notas,
+      items, nombre, email, telefono, notas,
       metodoPago,
     } = req.body;
 
@@ -2141,9 +2136,6 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
     }
     if (!telefono || !/^\d+$/.test(String(telefono).trim())) {
       return res.status(400).json({ error: 'Ingresá un teléfono válido, solo números (lo necesitamos para coordinar la entrega por WhatsApp).' });
-    }
-    if (metodoEnvio === 'Envio a domicilio' && (!direccion || !ciudad)) {
-      return res.status(400).json({ error: 'Para envio a domicilio hace falta al menos direccion y ciudad.' });
     }
     if (metodoPago !== 'transferencia') {
       return res.status(400).json({ error: 'Por ahora el carrito solo admite pago por transferencia.' });
@@ -2208,11 +2200,11 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
         nombreCliente: sanitizarTexto(nombre, 150),
         emailCliente: sanitizarTexto(email, 254),
         telefonoCliente: sanitizarTelefono(telefono),
-        direccion: sanitizarTexto(direccion, 250),
-        ciudad: sanitizarTexto(ciudad, 100),
-        provincia: sanitizarTexto(provincia, 100),
-        codigoPostal: sanitizarCodigoPostal(codigoPostal),
-        metodoEnvio: metodoEnvio || 'Retiro en el local',
+        direccion: '',
+        ciudad: '',
+        provincia: '',
+        codigoPostal: '',
+        metodoEnvio: 'A coordinar por WhatsApp',
         estado: 'Pendiente de pago',
         transportista: '',
         numeroSeguimiento: '',

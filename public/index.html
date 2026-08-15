@@ -456,19 +456,6 @@
     margin-top:8px; padding-top:8px; border-top:1px solid var(--line);
   }
   #checkoutBox.modo-carrito #campoCantidadCheckout{ display:none; }
-  .metodo-envio-opciones{ display:flex; gap:10px; margin-bottom:6px; }
-  .metodo-envio-opciones label{
-    flex:1; display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0;
-    font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); padding:10px; border:1px solid var(--line);
-    border-radius:var(--radius); cursor:pointer;
-  }
-  .metodo-envio-opciones input{ width:auto; margin:0; }
-  #camposDomicilio.oculto{ display:none; }
-  .envio-estimado-checkout{
-    font-family:'Baloo 2', sans-serif; font-size:13px; color:var(--ink); background:var(--bg-alt);
-    border:1px solid var(--line); border-radius:var(--radius); padding:8px 10px; margin-top:-6px; margin-bottom:16px;
-  }
-  .envio-estimado-checkout.oculto{ display:none; }
   .metodo-pago-opciones{ display:flex; gap:10px; margin-bottom:6px; }
   .metodo-pago-opciones label{
     flex:1; display:flex; align-items:center; gap:6px; text-transform:none; letter-spacing:0;
@@ -586,28 +573,6 @@
 
     <label>Entrega</label>
     <p style="font-size:12px; color:var(--ink-muted); margin:-10px 0 10px;">La entrega se coordina por WhatsApp.</p>
-    <div class="metodo-envio-opciones">
-      <label><input type="radio" name="metodoEnvio" value="Retiro en el local" checked> Retiro en el local</label>
-      <label><input type="radio" name="metodoEnvio" value="Envio a domicilio"> Envío a domicilio</label>
-    </div>
-
-    <div id="camposDomicilio" class="oculto" style="margin-top:10px;">
-      <label for="inputDireccionCheckout">Dirección</label>
-      <input type="text" id="inputDireccionCheckout" placeholder="Calle y número" autocomplete="street-address">
-
-      <label for="inputCiudadCheckout">Ciudad</label>
-      <input type="text" id="inputCiudadCheckout" placeholder="Ciudad" autocomplete="address-level2">
-
-      <label for="inputProvinciaCheckout">Provincia</label>
-      <select id="inputProvinciaCheckout" autocomplete="address-level1">
-        <option value="">Elegí tu provincia...</option>
-      </select>
-
-      <label for="inputCPCheckout">Código postal</label>
-      <input type="text" id="inputCPCheckout" placeholder="Código postal" autocomplete="postal-code" inputmode="numeric">
-
-      <div id="envioEstimadoCheckout" class="envio-estimado-checkout oculto"></div>
-    </div>
 
     <label for="inputNotasCheckout">Notas <span class="opcional-tag">(opcional)</span></label>
     <input type="text" id="inputNotasCheckout" placeholder="Algo que debamos saber">
@@ -1550,52 +1515,6 @@
   }
   inicializarGoogleLoginCliente();
 
-  /* ------------------------------------------------------------
-   * TARIFAS DE ENVÍO (estimado por provincia, tabla fija admin)
-   * ------------------------------------------------------------ */
-  const selectProvinciaCheckout = document.getElementById('inputProvinciaCheckout');
-  const envioEstimadoCheckout = document.getElementById('envioEstimadoCheckout');
-  let tarifasEnvioPorProvincia = {};
-
-  async function cargarTarifasEnvioPublico(){
-    try {
-      const res = await fetch('/tarifas-envio');
-      const data = await res.json();
-      const tarifas = data.tarifas || [];
-      tarifasEnvioPorProvincia = {};
-      tarifas.forEach((t) => { tarifasEnvioPorProvincia[t.provincia.toUpperCase()] = t.costo; });
-
-      selectProvinciaCheckout.innerHTML = '<option value="">Elegí tu provincia...</option>' +
-        tarifas.map((t) => `<option value="${escaparHtmlPublico(t.provincia)}">${escaparHtmlPublico(t.provincia)}</option>`).join('');
-    } catch (err) {
-      // Si falla, el checkout sigue funcionando sin estimación de envío.
-    }
-  }
-  cargarTarifasEnvioPublico();
-
-  function costoEnvioActual(){
-    const esDomicilio = document.querySelector('input[name="metodoEnvio"]:checked')?.value === 'Envio a domicilio';
-    if (!esDomicilio) return 0;
-    const provincia = selectProvinciaCheckout.value.toUpperCase();
-    return provincia && tarifasEnvioPorProvincia[provincia] ? tarifasEnvioPorProvincia[provincia] : 0;
-  }
-
-  function actualizarEnvioEstimado(){
-    const esDomicilio = document.querySelector('input[name="metodoEnvio"]:checked')?.value === 'Envio a domicilio';
-    const costo = costoEnvioActual();
-    if (!esDomicilio) {
-      envioEstimadoCheckout.classList.add('oculto');
-      return;
-    }
-    if (!selectProvinciaCheckout.value) {
-      envioEstimadoCheckout.classList.add('oculto');
-      return;
-    }
-    envioEstimadoCheckout.classList.remove('oculto');
-    envioEstimadoCheckout.textContent = costo
-      ? `Envío estimado a ${selectProvinciaCheckout.value}: $${costo} (es solo un estimado, se paga por separado — coordinamos el costo final por WhatsApp)`
-      : 'Todavía no tenemos un costo estimado para esa provincia. El envío se paga por separado, lo coordinamos por WhatsApp.';
-  }
 
   /* ------------------------------------------------------------
    * CARRITO (localStorage, independiente del login de cliente)
@@ -1739,7 +1658,6 @@
   const pantallaCheckout = document.getElementById('pantallaCheckout');
   const checkoutResumen = document.getElementById('checkoutResumen');
   const inputCantidadCheckout = document.getElementById('inputCantidadCheckout');
-  const camposDomicilio = document.getElementById('camposDomicilio');
   const panelTransferencia = document.getElementById('panelTransferencia');
   const transferenciaDatosDiv = document.getElementById('transferenciaDatos');
   const btnPagarCheckout = document.getElementById('btnPagarCheckout');
@@ -1829,15 +1747,8 @@
     document.getElementById('inputNombreCheckout').value = sesionCliente ? sesionCliente.nombre : '';
     document.getElementById('inputEmailCheckout').value = sesionCliente ? sesionCliente.email : '';
     document.getElementById('inputTelefonoCheckout').value = '';
-    document.getElementById('inputDireccionCheckout').value = '';
-    document.getElementById('inputCiudadCheckout').value = '';
-    selectProvinciaCheckout.value = '';
-    document.getElementById('inputCPCheckout').value = '';
     document.getElementById('inputNotasCheckout').value = '';
-    document.querySelector('input[name="metodoEnvio"][value="Retiro en el local"]').checked = true;
     document.querySelector(`input[name="metodoPago"][value="${PAYWAY_HABILITADO ? 'payway' : 'transferencia'}"]`).checked = true;
-    camposDomicilio.classList.add('oculto');
-    envioEstimadoCheckout.classList.add('oculto');
     mensajeCheckout.textContent = '';
     mensajeCheckout.className = 'checkout-mensaje';
     btnPagarCheckout.disabled = false;
@@ -1897,20 +1808,6 @@
     pantallaCheckout.classList.add('hidden');
   });
 
-  document.querySelectorAll('input[name="metodoEnvio"]').forEach((radio) => {
-    radio.addEventListener('change', () => {
-      const esDomicilio = document.querySelector('input[name="metodoEnvio"]:checked').value === 'Envio a domicilio';
-      camposDomicilio.classList.toggle('oculto', !esDomicilio);
-      actualizarEnvioEstimado();
-      if (metodoPagoSeleccionado() === 'transferencia') actualizarPanelPago();
-    });
-  });
-
-  selectProvinciaCheckout.addEventListener('change', () => {
-    actualizarEnvioEstimado();
-    if (metodoPagoSeleccionado() === 'transferencia') actualizarPanelPago();
-  });
-
   document.querySelectorAll('input[name="metodoPago"]').forEach((radio) => {
     radio.addEventListener('change', actualizarPanelPago);
   });
@@ -1941,11 +1838,6 @@
     const nombre = document.getElementById('inputNombreCheckout').value.trim();
     const email = document.getElementById('inputEmailCheckout').value.trim();
     const telefono = document.getElementById('inputTelefonoCheckout').value.trim();
-    const metodoEnvio = document.querySelector('input[name="metodoEnvio"]:checked').value;
-    const direccion = document.getElementById('inputDireccionCheckout').value.trim();
-    const ciudad = document.getElementById('inputCiudadCheckout').value.trim();
-    const provincia = document.getElementById('inputProvinciaCheckout').value.trim();
-    const codigoPostal = document.getElementById('inputCPCheckout').value.trim();
     const notas = document.getElementById('inputNotasCheckout').value.trim();
     const metodoPago = metodoPagoSeleccionado();
 
@@ -1970,12 +1862,6 @@
       document.getElementById('inputTelefonoCheckout').focus();
       return;
     }
-    if (metodoEnvio === 'Envio a domicilio' && (!direccion || !ciudad)) {
-      mensajeCheckout.className = 'checkout-mensaje error';
-      mensajeCheckout.textContent = 'Completá al menos dirección y ciudad para el envío.';
-      document.getElementById(!direccion ? 'inputDireccionCheckout' : 'inputCiudadCheckout').focus();
-      return;
-    }
 
     btnPagarCheckout.disabled = true;
     btnPagarCheckout.textContent = metodoPago === 'payway' ? 'Redirigiendo a Payway...' : 'Confirmando pedido...';
@@ -1986,8 +1872,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           skuGeneral: productoEnCheckout.skuGeneral,
-          cantidad, nombre, email, telefono,
-          metodoEnvio, direccion, ciudad, provincia, codigoPostal, notas,
+          cantidad, nombre, email, telefono, notas,
           metodoPago,
         }),
       });
@@ -2020,11 +1905,6 @@
     const nombre = document.getElementById('inputNombreCheckout').value.trim();
     const email = document.getElementById('inputEmailCheckout').value.trim();
     const telefono = document.getElementById('inputTelefonoCheckout').value.trim();
-    const metodoEnvio = document.querySelector('input[name="metodoEnvio"]:checked').value;
-    const direccion = document.getElementById('inputDireccionCheckout').value.trim();
-    const ciudad = document.getElementById('inputCiudadCheckout').value.trim();
-    const provincia = document.getElementById('inputProvinciaCheckout').value.trim();
-    const codigoPostal = document.getElementById('inputCPCheckout').value.trim();
     const notas = document.getElementById('inputNotasCheckout').value.trim();
 
     mensajeCheckout.className = 'checkout-mensaje';
@@ -2048,12 +1928,6 @@
       document.getElementById('inputTelefonoCheckout').focus();
       return;
     }
-    if (metodoEnvio === 'Envio a domicilio' && (!direccion || !ciudad)) {
-      mensajeCheckout.className = 'checkout-mensaje error';
-      mensajeCheckout.textContent = 'Completá al menos dirección y ciudad para el envío.';
-      document.getElementById(!direccion ? 'inputDireccionCheckout' : 'inputCiudadCheckout').focus();
-      return;
-    }
 
     btnPagarCheckout.disabled = true;
     btnPagarCheckout.textContent = 'Confirmando pedido...';
@@ -2064,8 +1938,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map((it) => ({ skuGeneral: it.skuGeneral, cantidad: it.cantidad })),
-          nombre, email, telefono,
-          metodoEnvio, direccion, ciudad, provincia, codigoPostal, notas,
+          nombre, email, telefono, notas,
           metodoPago: 'transferencia',
         }),
       });
