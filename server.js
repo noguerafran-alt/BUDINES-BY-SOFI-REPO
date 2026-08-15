@@ -1988,6 +1988,9 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
     if (!email || !esEmailValido(email)) {
       return res.status(400).json({ error: 'Ingresá un email válido (lo necesitamos para mandarte la confirmación del pedido).' });
     }
+    if (!telefono || !/^\d+$/.test(String(telefono).trim())) {
+      return res.status(400).json({ error: 'Ingresá un teléfono válido, solo números (lo necesitamos para coordinar la entrega por WhatsApp).' });
+    }
     // Tope razonable: evita pedidos absurdos por error de tipeo o por un
     // script automatizado, sin restringir compras normales de verdad.
     let cantidadNum = 1;
@@ -2135,6 +2138,9 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
     }
     if (!email || !esEmailValido(email)) {
       return res.status(400).json({ error: 'Ingresá un email válido (lo necesitamos para mandarte la confirmación del pedido).' });
+    }
+    if (!telefono || !/^\d+$/.test(String(telefono).trim())) {
+      return res.status(400).json({ error: 'Ingresá un teléfono válido, solo números (lo necesitamos para coordinar la entrega por WhatsApp).' });
     }
     if (metodoEnvio === 'Envio a domicilio' && (!direccion || !ciudad)) {
       return res.status(400).json({ error: 'Para envio a domicilio hace falta al menos direccion y ciudad.' });
