@@ -1149,6 +1149,42 @@ async function buscarSkuCompletoDisponible(sheetsClient, spreadsheetIdProductos,
 }
 
 /**
+ * Igual que buscarSkuCompletoDisponible pero devuelve hasta `cantidad`
+ * ejemplares sin vender de un SKU general, en vez de uno solo — para
+ * despachar pedidos grandes de una vez sin tener que escanear cada
+ * unidad individual. Devuelve un array (puede tener menos elementos que
+ * `cantidad` si no hay tantos generados/disponibles).
+ */
+async function buscarSkuCompletosDisponibles(sheetsClient, spreadsheetIdProductos, spreadsheetIdVentas, skuGeneral, cantidad) {
+  const historico = await getHistoricoSku(sheetsClient, spreadsheetIdProductos, config.HOJA_HISTORICO_SKU);
+  const skuNormalizado = String(skuGeneral).trim().toLowerCase();
+  const generados = historico
+    .filter((h) => String(h.skuGeneral).trim().toLowerCase() === skuNormalizado)
+    .map((h) => h.skuCompleto);
+
+  if (generados.length === 0) return [];
+
+  const responseVentas = await sheetsClient.spreadsheets.values.get({
+    spreadsheetId: spreadsheetIdVentas,
+    range: `${config.HOJA_VENTAS}!A:A`,
+  });
+  const rows = responseVentas.data.values || [];
+  const yaEnVentas = new Set(
+    rows.slice(1).map((r) => (r[0] ? String(r[0]).trim().toLowerCase() : '')).filter(Boolean),
+  );
+
+  const disponibles = [];
+  for (const skuCompleto of generados) {
+    if (disponibles.length >= cantidad) break;
+    if (!yaEnVentas.has(String(skuCompleto).trim().toLowerCase())) {
+      disponibles.push(skuCompleto);
+    }
+  }
+
+  return disponibles;
+}
+
+/**
  * Agrega filas a la hoja IMPRIMIR APP (solo unidades generadas desde esta
  * app web, separado de la hoja IMPRIMIR que usa el generador del lado de
  * Google Sheets). Formato: Producto, Categoria, Subcategoria, SKU completo
@@ -2084,6 +2120,7 @@ module.exports = {
   buscarAsociacionCodigoBarra,
   asociarCodigoBarra,
   buscarSkuCompletoDisponible,
+  buscarSkuCompletosDisponibles,
   appendFilasImprimirApp,
   sumarCantidadManualStock,
   asegurarFilaStock,

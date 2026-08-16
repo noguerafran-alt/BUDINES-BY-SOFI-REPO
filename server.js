@@ -14,6 +14,7 @@ const { google } = require('googleapis');
 const config = require('./config');
 const {
   appendRow,
+  appendRows,
   getStockPorSkuGeneral,
   extraerSkuGeneral,
   getFilasImprimir,
@@ -41,6 +42,7 @@ const {
   buscarAsociacionCodigoBarra,
   asociarCodigoBarra,
   buscarSkuCompletoDisponible,
+  buscarSkuCompletosDisponibles,
   procesarVentasNuevas,
   ajustarStockCantidad,
   registrarVisitaProducto,
@@ -2515,6 +2517,77 @@ app.post('/admin/pedidos/registrar-unidad', limiteAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error registrando la unidad del pedido:', err.message);
     res.status(500).json({ error: 'No se pudo registrar la unidad.' });
+  }
+});
+
+/* Version en bloque de "registrar-unidad": para pedidos grandes (ej. 100
+   unidades de lo mismo) donde escanear ejemplar por ejemplar no tiene
+   sentido — el admin pide "cargá N" y el servidor elige solas las
+   siguientes N unidades sin vender de ese SKU general (mismo mecanismo
+   que "Vender" en Escanear/Venta manual, extendido a varias a la vez).
+   No hace falta escanear nada: útil justamente para bultos grandes donde
+   no importa cuál unidad puntual sale, solo que salgan N. */
+app.post('/admin/pedidos/registrar-unidades', limiteAdmin, async (req, res) => {
+  try {
+    const { pedidoId, cantidad } = req.body;
+    const sesion = requiereSesion(req, res);
+    if (!sesion) return;
+    if (!pedidoId || !String(pedidoId).trim()) {
+      return res.status(400).json({ error: 'Falta el número de pedido.' });
+    }
+    const cantidadNum = enteroEnRango(cantidad, 1, 500);
+    if (cantidadNum === null) {
+      return res.status(400).json({ error: 'La cantidad tiene que ser un número entero entre 1 y 500.' });
+    }
+
+    const sheetsClient = google.sheets({ version: 'v4', auth });
+    const { pedido } = await getPedidoPorId(sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_PEDIDOS, String(pedidoId).trim());
+    if (!pedido) {
+      return res.status(404).json({ error: 'No se encontró ese pedido.' });
+    }
+
+    const unidadesPrevias = String(pedido.skuUnidad || '').trim();
+    const yaRegistradas = unidadesPrevias ? unidadesPrevias.split('|').map((s) => s.trim()).filter(Boolean).length : 0;
+    const cantidadPedida = Number(pedido.cantidad) || 1;
+    const faltan = Math.max(0, cantidadPedida - yaRegistradas);
+    if (cantidadNum > faltan) {
+      return res.status(400).json({ error: `Ese pedido solo tiene ${faltan} unidad(es) pendiente(s) de registrar, no ${cantidadNum}.` });
+    }
+
+    const disponibles = await buscarSkuCompletosDisponibles(
+      sheetsClient, config.SHEET_ID_PRODUCTOS, config.SHEET_ID_VENTAS, pedido.skuGeneral, cantidadNum,
+    );
+    if (disponibles.length < cantidadNum) {
+      return res.status(400).json({
+        error: `Solo hay ${disponibles.length} unidad(es) generada(s) y sin vender de ${pedido.skuGeneral} (pediste cargar ${cantidadNum}). Generá más unidades con "+ Stock" en Catálogo antes de despachar el resto.`,
+      });
+    }
+
+    const camposActualizar = {};
+    let aviso = null;
+    if (!tieneStockReservado(pedido)) {
+      await ajustarStockCantidad(
+        sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_STOCK,
+        pedido.skuGeneral, -(Number(pedido.cantidad) || 1), pedido.producto || '',
+      );
+      camposActualizar.stockReservado = 'SI';
+      aviso = 'Este pedido no tenía el stock reservado (nunca se marcó como pagado), así que se descontó ahora.';
+    }
+
+    const { fecha, hora } = fechaYHoraActual();
+    await appendRows(sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_VENTAS, disponibles.map((skuCompleto) => [
+      skuCompleto, fecha, hora, '', '', '', String(pedidoId).trim(), sesion.email,
+    ]));
+
+    const todasLasUnidades = unidadesPrevias ? [unidadesPrevias, ...disponibles] : disponibles;
+    camposActualizar.skuUnidad = todasLasUnidades.join(' | ');
+
+    await actualizarPedido(sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_PEDIDOS, String(pedidoId).trim(), camposActualizar);
+
+    res.json({ ok: true, skuUnidad: camposActualizar.skuUnidad, cargadas: disponibles.length, aviso });
+  } catch (err) {
+    console.error('Error registrando unidades en bloque del pedido:', err.message);
+    res.status(500).json({ error: 'No se pudieron registrar las unidades.' });
   }
 });
 

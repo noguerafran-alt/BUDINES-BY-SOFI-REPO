@@ -521,6 +521,9 @@
   }
   .pedido-card .fila-unidad button.btn-camara-unidad,
   .pedido-card .fila-unidad button.btn-buscar-unidad{ background:#fff; color:var(--ink); border-color:var(--line); }
+  .pedido-card .fila-unidades-bloque{ align-items:center; margin-top:8px; max-width:none; flex-wrap:wrap; }
+  .pedido-card .fila-unidades-bloque input{ flex:0 0 auto; }
+  .pedido-card .fila-unidades-bloque button.registrar-unidades-bloque{ border-color:var(--stamp-green); background:var(--stamp-green); }
   .pedido-card .unidades-despachadas{
     font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink);
     margin-bottom:6px; word-break:break-all;
@@ -3757,6 +3760,14 @@
           </div>
           <p style="font-size:12px; color:var(--ink-muted); margin:6px 0 0;">Falta${faltanUnidades > 1 ? 'n' : ''} ${faltanUnidades} de ${cantidadPedida}. No vuelve a descontar stock: ya se descontó al reservar.</p>
           <p style="font-size:11px; color:var(--ink-muted); margin:2px 0 0;">Va el código completo de la etiqueta del ejemplar (SKU general + número de serie, ej: ${escaparHtml(p.skuGeneral || 'SKU')}-000001), no solo el SKU general del producto.</p>
+          ${faltanUnidades > 1 ? `
+          <div class="fila-unidad fila-unidades-bloque">
+            <span style="font-size:12.5px; color:var(--ink-muted); white-space:nowrap;">o cargar</span>
+            <input type="number" class="input-cantidad-unidades" min="1" max="${faltanUnidades}" step="1" value="${faltanUnidades}" style="max-width:80px;">
+            <span style="font-size:12.5px; color:var(--ink-muted); white-space:nowrap;">de una — sin escanear cada una</span>
+            <button type="button" class="registrar-unidades-bloque">Cargar automático</button>
+          </div>
+          ` : ''}
           ` : `<p style="font-size:12px; color:var(--ink-muted); margin:0;">Pedido completo: ${cantidadPedida} de ${cantidadPedida} ejemplares registrados.</p>`}
           <div class="mensaje-unidad"></div>
         </div>
@@ -3777,6 +3788,12 @@
         });
         card.querySelector('.btn-camara-unidad').addEventListener('click', () => abrirEscanerUnidad(card, pedidoId));
         card.querySelector('.btn-buscar-unidad').addEventListener('click', () => abrirVentaManualParaPedido(inputUnidad));
+      }
+
+      const botonRegistrarBloque = card.querySelector('.registrar-unidades-bloque');
+      if (botonRegistrarBloque) {
+        const inputCantidadUnidades = card.querySelector('.input-cantidad-unidades');
+        botonRegistrarBloque.addEventListener('click', () => registrarUnidadesBloquePedido(card, pedidoId, inputCantidadUnidades.value));
       }
 
       card.querySelector('.guardar-pedido').addEventListener('click', async () => {
@@ -3870,6 +3887,49 @@
       mensaje.style.color = 'var(--stamp-red)';
       mensaje.textContent = err.message;
       if (boton) { boton.disabled = false; boton.textContent = 'Registrar'; }
+    }
+  }
+
+  /* ------------------------------------------------------------
+   * Version en bloque: para pedidos con muchas unidades del mismo
+   * producto (ej. 100 budines), en vez de escanear ejemplar por
+   * ejemplar el admin pide "cargá N" y el servidor elige solas las
+   * siguientes N unidades sin vender de ese SKU general.
+   * ------------------------------------------------------------ */
+  async function registrarUnidadesBloquePedido(card, pedidoId, cantidadCruda){
+    const mensaje = card.querySelector('.mensaje-unidad');
+    const boton = card.querySelector('.registrar-unidades-bloque');
+    const cantidad = Number(cantidadCruda);
+
+    if (!cantidad || cantidad < 1 || !Number.isInteger(cantidad)) {
+      mensaje.style.color = 'var(--stamp-red)';
+      mensaje.textContent = 'Ingresá una cantidad válida (número entero mayor a 0).';
+      return;
+    }
+
+    if (boton) { boton.disabled = true; boton.textContent = 'Cargando...'; }
+    mensaje.style.color = 'var(--ink-muted)';
+    mensaje.textContent = `Buscando ${cantidad} unidad(es) disponibles...`;
+
+    try {
+      const res = await fetch('/admin/pedidos/registrar-unidades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: adminToken, pedidoId, cantidad }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+      const pedido = pedidosCargados.find((p) => p.pedidoId === pedidoId);
+      if (pedido) {
+        pedido.skuUnidad = data.skuUnidad || pedido.skuUnidad;
+        pedido.stockReservado = 'SI';
+      }
+      renderizarPedidos();
+    } catch (err) {
+      mensaje.style.color = 'var(--stamp-red)';
+      mensaje.textContent = err.message;
+      if (boton) { boton.disabled = false; boton.textContent = 'Cargar automático'; }
     }
   }
 
