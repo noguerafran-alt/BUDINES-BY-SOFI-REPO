@@ -2444,9 +2444,21 @@ app.post('/admin/pedidos/registrar-unidad', limiteAdmin, async (req, res) => {
       return res.status(404).json({ error: 'No se encontró ese pedido.' });
     }
 
+    const skuGeneralPedido = String(pedido.skuGeneral || '').trim().toUpperCase();
+
+    // 0) Caso comun: cargaron el SKU general del producto (correcto, pero
+    // incompleto) en vez del codigo completo del ejemplar fisico (SKU
+    // general + numero de serie, el que esta impreso/en el QR de la
+    // etiqueta pegada a la unidad). Se avisa distinto de "otro
+    // producto" porque acá el producto SÍ es el correcto.
+    if (skuLimpio.toUpperCase() === skuGeneralPedido) {
+      return res.status(400).json({
+        error: `"${skuLimpio}" es el SKU general del producto (correcto), pero falta el número de serie del ejemplar físico. Escaneá el código completo de la etiqueta pegada a la unidad (algo como ${skuLimpio}-000001), no el SKU general solo.`,
+      });
+    }
+
     // 1) El ejemplar escaneado tiene que ser del producto comprado.
     const skuGeneralEscaneado = extraerSkuGeneral(skuLimpio).toUpperCase();
-    const skuGeneralPedido = String(pedido.skuGeneral || '').trim().toUpperCase();
     if (skuGeneralEscaneado !== skuGeneralPedido) {
       return res.status(400).json({
         error: `Ese ejemplar es de otro producto: escaneaste ${skuGeneralEscaneado} y el pedido es de ${skuGeneralPedido} (${pedido.producto || ''}).`,

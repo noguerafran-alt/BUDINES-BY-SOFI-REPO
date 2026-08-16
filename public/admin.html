@@ -1871,7 +1871,12 @@
         const destinoPedido = inputUnidadPedidoDestino;
         cerrarModalVentaManual();
         if (destinoPedido) {
-          destinoPedido.value = skuGeneral;
+          // OJO: esto es el SKU general (el producto), NO el codigo
+          // completo del ejemplar. Se deja el guion final a proposito
+          // para que quede claro que falta completar el numero de serie
+          // de la etiqueta pegada a la unidad fisica antes de escanear o
+          // tocar "Registrar".
+          destinoPedido.value = `${skuGeneral}-`;
           destinoPedido.focus();
           return;
         }
@@ -1912,18 +1917,24 @@
     if (!escaneado) return;
 
     let producto = catalogoPublicoVentaManual.find((p) => (p.skuGeneral || '').toUpperCase() === escaneado);
+    let eraCodigoCompleto = false;
     if (!producto) {
       // Por si lo que se escaneó fue el SKU completo de una unidad
       // puntual (con serial) y no el SKU general del producto.
       const skuGeneralDelEscaneo = extraerSkuGeneralCliente(escaneado).toUpperCase();
       producto = catalogoPublicoVentaManual.find((p) => (p.skuGeneral || '').toUpperCase() === skuGeneralDelEscaneo);
+      eraCodigoCompleto = Boolean(producto);
     }
     if (!producto) return; // no matchea nada todavia, se deja como busqueda de texto normal
 
     const destinoPedido = inputUnidadPedidoDestino;
     cerrarModalVentaManual();
     if (destinoPedido) {
-      destinoPedido.value = producto.skuGeneral;
+      // Si ya era el codigo completo del ejemplar (con serial), se deja
+      // tal cual — ya se puede registrar. Si era solo el SKU general del
+      // producto, se agrega el guion final para que quede claro que
+      // todavia falta el numero de serie de la etiqueta.
+      destinoPedido.value = eraCodigoCompleto ? escaneado : `${producto.skuGeneral}-`;
       destinoPedido.focus();
       return;
     }
@@ -3745,6 +3756,7 @@
             <button type="button" class="registrar-unidad">Registrar</button>
           </div>
           <p style="font-size:12px; color:var(--ink-muted); margin:6px 0 0;">Falta${faltanUnidades > 1 ? 'n' : ''} ${faltanUnidades} de ${cantidadPedida}. No vuelve a descontar stock: ya se descontó al reservar.</p>
+          <p style="font-size:11px; color:var(--ink-muted); margin:2px 0 0;">Va el código completo de la etiqueta del ejemplar (SKU general + número de serie, ej: ${escaparHtml(p.skuGeneral || 'SKU')}-000001), no solo el SKU general del producto.</p>
           ` : `<p style="font-size:12px; color:var(--ink-muted); margin:0;">Pedido completo: ${cantidadPedida} de ${cantidadPedida} ejemplares registrados.</p>`}
           <div class="mensaje-unidad"></div>
         </div>
