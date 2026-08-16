@@ -455,6 +455,7 @@
   .fila-catalogo-completo .btn-vender-completo{ border-color:var(--stamp-green); color:var(--stamp-green); font-weight:600; }
   .fila-catalogo-completo .btn-generar-stock-completo{ border-color:var(--ink); color:var(--ink); font-weight:600; }
   .fila-catalogo-completo .btn-borrar-producto-completo{ border-color:var(--stamp-red); color:var(--stamp-red); font-weight:600; }
+  .fila-catalogo-completo .btn-borrar-producto-completo.confirmando{ background:var(--stamp-red); color:#fff; }
   .fila-catalogo-completo .mensaje-precio-completo{ font-size:12.5px; flex-basis:100%; }
 
   .btn-imprimir{
@@ -3479,19 +3480,25 @@
 
       // Borrado destructivo e irreversible: borra el producto de
       // Productos, STOCK y sus asociaciones de código de barras (no
-      // toca VENTAS/HISTORICO_SKU/PEDIDOS). Doble confirmación porque
-      // no hay forma de deshacerlo.
+      // toca VENTAS/HISTORICO_SKU/PEDIDOS). Confirmación en dos toques
+      // dentro de la misma página (NO usa window.confirm: en Safari/iOS
+      // y en varios navegadores embebidos de apps ese diálogo nativo
+      // queda bloqueado en silencio — el botón "no hacía nada" porque
+      // confirm() devolvía false sin mostrar ningún cartel).
+      let timeoutConfirmarBorrado = null;
       botonBorrar.addEventListener('click', async () => {
-        const nombreProducto = fila.querySelector('.nombre').textContent;
-        const confirmar1 = window.confirm(
-          `¿Seguro que querés borrar "${nombreProducto}" (${skuGeneral}) de la base?\n\nSe borra de Productos, Stock y sus códigos de barra asociados. NO se puede deshacer.`
-        );
-        if (!confirmar1) return;
-        const confirmar2 = window.confirm(
-          `Última confirmación: se va a borrar "${nombreProducto}" (${skuGeneral}) para siempre. ¿Confirmás?`
-        );
-        if (!confirmar2) return;
+        if (!botonBorrar.classList.contains('confirmando')) {
+          botonBorrar.classList.add('confirmando');
+          botonBorrar.textContent = '¿Seguro? Tocá de nuevo';
+          timeoutConfirmarBorrado = setTimeout(() => {
+            botonBorrar.classList.remove('confirmando');
+            botonBorrar.textContent = '🗑️ Borrar';
+          }, 4000);
+          return;
+        }
 
+        clearTimeout(timeoutConfirmarBorrado);
+        botonBorrar.classList.remove('confirmando');
         botonBorrar.disabled = true;
         botonBorrar.textContent = 'Borrando...';
         try {
