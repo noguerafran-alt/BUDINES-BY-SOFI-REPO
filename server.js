@@ -35,6 +35,7 @@ const {
   actualizarDescripcionProducto,
   actualizarPrecioProducto,
   actualizarProveedorProducto,
+  actualizarVisibilidadProducto,
   eliminarProductoCompleto,
   actualizarLinksCatalogoProductos,
   buscarAsociacionCodigoBarra,
@@ -1077,6 +1078,7 @@ async function construirCatalogoConStock(sheetsClient, { soloConStock, incluirPr
   const descripcionPorSkuGeneral = {};
   const proveedorPorSkuGeneral = {};
   const subcategoriaPorSkuGeneral = {};
+  const visiblePorSkuGeneral = {};
   catalogoProductos.forEach((p) => {
     if (p.skuGeneral && p.precio !== '' && p.precio !== undefined) {
       precioPorSkuGeneral[p.skuGeneral] = p.precio;
@@ -1089,6 +1091,7 @@ async function construirCatalogoConStock(sheetsClient, { soloConStock, incluirPr
       descripcionPorSkuGeneral[p.skuGeneral] = p.descripcion || '';
       proveedorPorSkuGeneral[p.skuGeneral] = p.proveedor || '';
       subcategoriaPorSkuGeneral[p.skuGeneral] = p.subcategoria || '';
+      visiblePorSkuGeneral[p.skuGeneral] = p.visiblePublico !== false;
     }
   });
 
@@ -1102,11 +1105,14 @@ async function construirCatalogoConStock(sheetsClient, { soloConStock, incluirPr
     const nombre = row[cols.nombre] ? String(row[cols.nombre]).trim() : '';
     const categoria = row[cols.categoria] ? String(row[cols.categoria]).trim() : '';
     const cantidadActual = Number(row[cols.cantidadActual]) || 0;
+    const visiblePublico = visiblePorSkuGeneral[skuGeneral] !== false;
 
     // El catálogo público solo debe mostrar productos con stock
-    // disponible — si no hay unidades, ni siquiera lo listamos. El
-    // catálogo del admin (soloConStock=false) los quiere ver igual.
-    if (soloConStock && cantidadActual <= 0) continue;
+    // disponible y que el admin no haya ocultado a mano — si no hay
+    // unidades o está oculto, ni siquiera lo listamos. El catálogo del
+    // admin (soloConStock=false) los quiere ver igual, para poder
+    // reactivarlos.
+    if (soloConStock && (cantidadActual <= 0 || !visiblePublico)) continue;
 
     productos.push({
       skuGeneral,
@@ -1124,6 +1130,10 @@ async function construirCatalogoConStock(sheetsClient, { soloConStock, incluirPr
       // pide explicitamente un llamador admin (incluirProveedor:true),
       // nunca en el catalogo publico.
       ...(incluirProveedor ? { proveedor: proveedorPorSkuGeneral[skuGeneral] || '' } : {}),
+      // Estado de visibilidad manual — siempre se agrega (tambien en el
+      // catalogo publico, aunque ahi si esta en false ya se filtro
+      // arriba) porque el panel admin lo necesita para pintar el toggle.
+      visiblePublico,
     });
   }
 
@@ -1397,6 +1407,35 @@ app.post('/admin/producto-proveedor', limiteAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error actualizando el proveedor del producto:', err.message);
     res.status(500).json({ error: 'No se pudo actualizar el proveedor.' });
+  }
+});
+
+/* Muestra u oculta un producto del catálogo público por SKU general,
+   desde "Catálogo completo". No lo borra ni le toca el stock — sigue
+   pudiendo venderse desde el admin, solo desaparece de lo que ve el
+   cliente. Requiere admin nivel 2. */
+app.post('/admin/producto-visibilidad', limiteAdmin, async (req, res) => {
+  try {
+    const { skuGeneral, visible } = req.body;
+    const sesion = requiereNivel2(req, res);
+    if (!sesion) return;
+    if (!skuGeneral || !String(skuGeneral).trim()) {
+      return res.status(400).json({ error: 'Falta el SKU general del producto.' });
+    }
+
+    const sheetsClient = google.sheets({ version: 'v4', auth });
+    const encontrado = await actualizarVisibilidadProducto(
+      sheetsClient, config.SHEET_ID_PRODUCTOS, config.HOJA_PRODUCTOS,
+      String(skuGeneral).trim(), Boolean(visible),
+    );
+    if (!encontrado) {
+      return res.status(404).json({ error: 'No se encontró ese producto en el catálogo.' });
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error actualizando la visibilidad del producto:', err.message);
+    res.status(500).json({ error: 'No se pudo actualizar la visibilidad.' });
   }
 });
 

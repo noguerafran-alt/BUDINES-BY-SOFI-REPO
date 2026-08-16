@@ -267,7 +267,7 @@ function parsearFotos(valorCrudo) {
  */
 async function getCatalogoProductos(sheetsClient, spreadsheetId, sheetName) {
   const cols = config.COLUMNAS_PRODUCTOS;
-  const maxIndice = Math.max(cols.producto, cols.categoria, cols.subcategoria, cols.skuGeneral, cols.precio, cols.foto, cols.ultimaModificacionPrecio, cols.descripcion, cols.proveedor);
+  const maxIndice = Math.max(cols.producto, cols.categoria, cols.subcategoria, cols.skuGeneral, cols.precio, cols.foto, cols.ultimaModificacionPrecio, cols.descripcion, cols.proveedor, cols.visiblePublico);
   const ultimaLetra = columnaALetra(maxIndice);
   const range = `${sheetName}!A:${ultimaLetra}`;
 
@@ -298,6 +298,7 @@ async function getCatalogoProductos(sheetsClient, spreadsheetId, sheetName) {
       descripcion: row[cols.descripcion] ? String(row[cols.descripcion]).trim() : '',
       ultimaModificacionPrecio: row[cols.ultimaModificacionPrecio] ? String(row[cols.ultimaModificacionPrecio]).trim() : '',
       proveedor: row[cols.proveedor] ? String(row[cols.proveedor]).trim() : '',
+      visiblePublico: String(row[cols.visiblePublico] || '').trim().toUpperCase() !== 'NO',
     });
   }
 
@@ -931,6 +932,31 @@ async function actualizarProveedorProducto(sheetsClient, spreadsheetId, sheetNam
     range: `${sheetNameProductos}!${letraProveedor}${numeroFila}`,
     valueInputOption: 'USER_ENTERED',
     requestBody: { values: [[proveedor || '']] },
+  });
+
+  return true;
+}
+
+/**
+ * Muestra u oculta un producto del catalogo publico (columna L de
+ * Productos), buscandolo por SKU general. Ocultarlo NO le saca el
+ * stock ni impide venderlo desde el admin — solo lo saca del listado
+ * que ve el cliente. Devuelve true si lo encontro y actualizo, false
+ * si el SKU general no existe en la hoja.
+ */
+async function actualizarVisibilidadProducto(sheetsClient, spreadsheetId, sheetNameProductos, skuGeneral, visible) {
+  const cols = config.COLUMNAS_PRODUCTOS;
+  const { numeroFila } = await buscarFilaProductoPorSkuGeneral(sheetsClient, spreadsheetId, sheetNameProductos, skuGeneral);
+  if (!numeroFila) return false;
+
+  await asegurarFilasSuficientes(sheetsClient, spreadsheetId, sheetNameProductos, numeroFila);
+  const letraVisible = columnaALetra(cols.visiblePublico);
+
+  await sheetsClient.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${sheetNameProductos}!${letraVisible}${numeroFila}`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values: [[visible ? '' : 'NO']] },
   });
 
   return true;
@@ -2053,6 +2079,7 @@ module.exports = {
   actualizarDescripcionProducto,
   actualizarPrecioProducto,
   actualizarProveedorProducto,
+  actualizarVisibilidadProducto,
   eliminarProductoCompleto,
   buscarAsociacionCodigoBarra,
   asociarCodigoBarra,

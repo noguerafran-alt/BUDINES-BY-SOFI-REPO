@@ -454,6 +454,8 @@
   .fila-catalogo-completo button:disabled{ opacity:.5; cursor:default; }
   .fila-catalogo-completo .btn-vender-completo{ border-color:var(--stamp-green); color:var(--stamp-green); font-weight:600; }
   .fila-catalogo-completo .btn-generar-stock-completo{ border-color:var(--ink); color:var(--ink); font-weight:600; }
+  .fila-catalogo-completo .btn-toggle-visible-completo.visible{ border-color:var(--stamp-green); color:var(--stamp-green); }
+  .fila-catalogo-completo .btn-toggle-visible-completo.oculto{ border-color:var(--ink-muted); color:var(--ink-muted); background:var(--bg-alt); }
   .fila-catalogo-completo .btn-borrar-producto-completo{ border-color:var(--stamp-red); color:var(--stamp-red); font-weight:600; }
   .fila-catalogo-completo .btn-borrar-producto-completo.confirmando{ background:var(--stamp-red); color:#fff; }
   .fila-catalogo-completo .mensaje-precio-completo{ font-size:12.5px; flex-basis:100%; }
@@ -3359,6 +3361,7 @@
         <span class="badge-stock ${p.disponible ? 'disponible' : 'agotado'}">${p.cantidad} en stock</span>
         <button type="button" class="btn-vender-completo" ${p.cantidad > 0 ? '' : 'disabled title="Sin stock"'}>💰 Vender</button>
         <button type="button" class="btn-generar-stock-completo" title="Generar unidades nuevas de este producto">+ Stock</button>
+        <button type="button" class="btn-toggle-visible-completo ${p.visiblePublico ? 'visible' : 'oculto'}" title="Mostrar u ocultar del catálogo público">${p.visiblePublico ? '👁️ Visible en catálogo' : '🙈 Oculto del catálogo'}</button>
         <button type="button" class="btn-borrar-producto-completo" title="Borrar este producto por completo">🗑️ Borrar</button>
         <span class="mensaje-precio-completo"></span>
       </div>
@@ -3372,8 +3375,41 @@
       const botonProveedor = fila.querySelector('.btn-guardar-proveedor-completo');
       const botonVender = fila.querySelector('.btn-vender-completo');
       const botonStock = fila.querySelector('.btn-generar-stock-completo');
+      const botonVisible = fila.querySelector('.btn-toggle-visible-completo');
       const botonBorrar = fila.querySelector('.btn-borrar-producto-completo');
       const mensaje = fila.querySelector('.mensaje-precio-completo');
+
+      // Mostrar/ocultar del catálogo público: no toca stock ni permite
+      // seguir vendiendo desde el admin, solo lo saca de lo que ve el
+      // cliente (útil para productos de temporada, en pausa, etc).
+      botonVisible.addEventListener('click', async () => {
+        const nuevoValor = !botonVisible.classList.contains('visible');
+        botonVisible.disabled = true;
+        const textoOriginal = botonVisible.textContent;
+        botonVisible.textContent = 'Guardando...';
+        try {
+          const res = await fetch('/admin/producto-visibilidad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: adminToken, skuGeneral, visible: nuevoValor }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+          const productoEnMemoria = catalogoCompletoAdmin.find((prod) => prod.skuGeneral === skuGeneral);
+          if (productoEnMemoria) productoEnMemoria.visiblePublico = nuevoValor;
+
+          botonVisible.classList.toggle('visible', nuevoValor);
+          botonVisible.classList.toggle('oculto', !nuevoValor);
+          botonVisible.textContent = nuevoValor ? '👁️ Visible en catálogo' : '🙈 Oculto del catálogo';
+        } catch (err) {
+          mensaje.textContent = `Error: ${err.message}`;
+          mensaje.style.color = 'var(--stamp-red)';
+          botonVisible.textContent = textoOriginal;
+        } finally {
+          botonVisible.disabled = false;
+        }
+      });
 
       // Vender buscando el producto en vez de escaneando una unidad
       // puntual: el servidor asigna sola la próxima unidad ya generada

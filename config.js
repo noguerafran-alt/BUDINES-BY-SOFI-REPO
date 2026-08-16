@@ -83,6 +83,13 @@ module.exports = {
     // Ojo: el catalogo publico solo lista productos CON stock, asi que
     // el link de un producto sin unidades no va a abrir nada.
     linkCatalogo: 10,
+    // L: si dice "NO" (en cualquier mayus/minus), el producto se
+    // oculta del catalogo publico aunque tenga stock — para productos
+    // que se siguen vendiendo en el local pero no se quieren mostrar
+    // online (ej. de temporada, agotados hace rato, etc). Vacio o
+    // cualquier otro valor = visible (asi los productos que ya existian
+    // antes de agregar esta columna siguen mostrandose sin tocar nada).
+    visiblePublico: 11,
   },
 
   COLUMNAS_CONTADOR_UNIDADES: {
