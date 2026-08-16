@@ -2554,13 +2554,37 @@ app.post('/admin/pedidos/registrar-unidades', limiteAdmin, async (req, res) => {
       return res.status(400).json({ error: `Ese pedido solo tiene ${faltan} unidad(es) pendiente(s) de registrar, no ${cantidadNum}.` });
     }
 
+    // Primero se reutilizan unidades que ya tengan numero de serie
+    // generado (y sin vender). Si no alcanzan, se generan las que falten
+    // — pero SIN sumarlas a "Cantidad Manual" en STOCK, porque ese stock
+    // ya se descontó al reservar el pedido: son solo numeros de serie
+    // para poder identificar cada ejemplar despachado, no unidades
+    // nuevas entrando al local (si se sumaran, el stock quedaría
+    // duplicado).
     const disponibles = await buscarSkuCompletosDisponibles(
       sheetsClient, config.SHEET_ID_PRODUCTOS, config.SHEET_ID_VENTAS, pedido.skuGeneral, cantidadNum,
     );
     if (disponibles.length < cantidadNum) {
-      return res.status(400).json({
-        error: `Solo hay ${disponibles.length} unidad(es) generada(s) y sin vender de ${pedido.skuGeneral} (pediste cargar ${cantidadNum}). Generá más unidades con "+ Stock" en Catálogo antes de despachar el resto.`,
+      const catalogo = await getCatalogoProductos(sheetsClient, config.SHEET_ID_PRODUCTOS, config.HOJA_PRODUCTOS);
+      const productoCatalogo = catalogo.find((p) => p.skuGeneral.toLowerCase() === String(pedido.skuGeneral).trim().toLowerCase());
+      if (!productoCatalogo) {
+        return res.status(404).json({ error: `No se encontró "${pedido.skuGeneral}" en el catálogo de productos, no se pudieron generar más números de serie.` });
+      }
+      const faltantesPorGenerar = cantidadNum - disponibles.length;
+      const { fecha: fechaGeneracion } = fechaYHoraActual();
+      const nuevosGenerados = await generarUnidades(sheetsClient, {
+        spreadsheetId: config.SHEET_ID_PRODUCTOS,
+        skuGeneral: pedido.skuGeneral,
+        producto: productoCatalogo.producto,
+        categoria: productoCatalogo.categoria,
+        subcategoria: productoCatalogo.subcategoria,
+        precio: productoCatalogo.precio,
+        cantidad: faltantesPorGenerar,
+        generadoPor: sesion.email,
+        fecha: fechaGeneracion,
+        sumarStock: false,
       });
+      disponibles.push(...nuevosGenerados);
     }
 
     const camposActualizar = {};

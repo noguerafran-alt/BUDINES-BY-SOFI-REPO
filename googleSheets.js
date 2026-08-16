@@ -360,8 +360,18 @@ async function actualizarContadorUnidades(sheetsClient, spreadsheetId, sheetName
  * Genera `cantidad` SKUs completos correlativos para un SKU general,
  * actualiza CONTADOR_UNIDADES y agrega las filas correspondientes a
  * HISTORICO_SKU. Devuelve el array de SKUs completos generados.
+ *
+ * Por defecto tambien suma `cantidad` a "Cantidad Manual" en STOCK,
+ * porque el caso normal (boton "+ Stock") es literalmente avisar que
+ * entro mercaderia nueva al local. Pasar `sumarStock:false` para los
+ * casos donde el numero de serie se genera solo por trazabilidad
+ * (ej. despachar un pedido que ya tenia el stock descontado al
+ * reservarse) y NO representa unidades nuevas — si no, el stock queda
+ * duplicado.
  */
-async function generarUnidades(sheetsClient, { spreadsheetId, skuGeneral, producto, categoria, subcategoria, precio, cantidad, generadoPor, fecha }) {
+async function generarUnidades(sheetsClient, {
+  spreadsheetId, skuGeneral, producto, categoria, subcategoria, precio, cantidad, generadoPor, fecha, sumarStock = true,
+}) {
   const largo = config.LARGO_NUMERO_SERIE;
 
   const { ultimoNumeroSerie, numeroFila } = await getUltimoNumeroSerie(
@@ -411,10 +421,11 @@ async function generarUnidades(sheetsClient, { spreadsheetId, skuGeneral, produc
     appendFilasImprimirApp(sheetsClient, spreadsheetId, config.HOJA_IMPRIMIR_APP, filasImprimirApp),
     // Sumamos la cantidad recien generada a "Cantidad Manual" en STOCK
     // (planilla de VENTAS), con fecha y nombre/categoria, para que el
-    // stock fisico quede al dia.
-    sumarCantidadManualStock(sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_STOCK, {
+    // stock fisico quede al dia — salvo que sumarStock:false (ver
+    // comentario del JSDoc de la funcion).
+    ...(sumarStock ? [sumarCantidadManualStock(sheetsClient, config.SHEET_ID_VENTAS, config.HOJA_STOCK, {
       skuGeneral, cantidad, nombre: producto, categoria, fecha,
-    }),
+    })] : []),
   ]);
 
   return skusGenerados;
