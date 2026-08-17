@@ -67,6 +67,7 @@ const whatsapp = require('./whatsapp');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { sanitizarTexto, esEmailValido, sanitizarTelefono, sanitizarCodigoPostal, enteroEnRango } = require('./validacion');
+const { montarRutasSeo } = require('./seo');
 
 const app = express();
 
@@ -107,6 +108,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
   maxAge: '365d',
   immutable: true,
 }));
+// SEO: la home y el sitemap se arman en el servidor, asi que tienen que
+// registrarse ANTES de express.static — si no, express contesta "/" con
+// el index.html crudo (mismo <title> y mismo canonical para todos los
+// productos) y nunca llegamos a inyectar los meta tags del producto que
+// pide la URL. Ver seo.js.
+montarRutasSeo(app, {
+  cargarProductos: () => construirCatalogoConStock(
+    google.sheets({ version: 'v4', auth }),
+    { soloConStock: true },
+  ),
+  // Ojo: va SITIO_URL (el dominio propio), no PUBLIC_URL — ver el
+  // comentario de SITIO_URL en config.js.
+  urlBase: config.SITIO_URL,
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* ============================================================

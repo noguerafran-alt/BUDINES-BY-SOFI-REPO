@@ -3,9 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Budines by Sofi</title>
+<!-- Todo lo que está entre SEO:INICIO y SEO:FIN son los meta tags de la
+     HOME. Cuando la URL trae ?producto=algo, el servidor (seo.js)
+     reemplaza este bloque entero por los meta tags de ese producto
+     (título, descripción, imagen y schema con precio/stock), así cada
+     producto puede rankear por su nombre en Google y el link se ve bien
+     al compartirlo. Si movés o renombrás estas marcas, actualizá seo.js. -->
+<!-- SEO:INICIO -->
+<title>Budines Artesanales de Limón y Naranja | Budines by Sofi</title>
+<meta name="description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp. Budines by Sofi.">
+<link rel="canonical" href="https://budines-by-sofi.com.ar/">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Budines by Sofi">
+<meta property="og:title" content="Budines Artesanales de Limón y Naranja | Budines by Sofi">
+<meta property="og:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
+<meta property="og:url" content="https://budines-by-sofi.com.ar/">
+<meta property="og:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
+<meta property="og:locale" content="es_AR">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Budines Artesanales de Limón y Naranja | Budines by Sofi">
+<meta name="twitter:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
+<meta name="twitter:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "Budines by Sofi",
+  "url": "https://budines-by-sofi.com.ar/",
+  "image": "https://budines-by-sofi.com.ar/budines-logo-final.jpg",
+  "logo": "https://budines-by-sofi.com.ar/budines-logo-final.jpg",
+  "description": "Budines caseros artesanales de limón y naranja, chicos y grandes, con pedido online y entrega coordinada por WhatsApp.",
+  "priceRange": "$$",
+  "areaServed": "AR"
+}
+</script>
+<!-- SEO:FIN -->
+
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -499,6 +539,8 @@
 </head>
 <body>
 
+<h1 style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;">Budines by Sofi — Budines artesanales de limón y naranja, hechos a pedido</h1>
+
 <div class="fullscreen hidden" id="pantallaCarrito">
   <div class="barra-superior-catalogo barra-superior-fullscreen">
     <button type="button" class="volver btn-volver-flecha" id="btnVolverCarrito" title="Volver al catálogo" aria-label="Volver al catálogo">←</button>
@@ -738,11 +780,16 @@
     return `<div class="mockup-placeholder"><span class="mockup-icono">${icono}</span></div>`;
   }
 
-  function fotoOPlaceholder(foto, categoria){
+  // El `nombre` va al alt de la imagen: se lee en voz alta con lector de
+  // pantalla, se muestra si la foto no carga, y es lo que indexa Google
+  // Imágenes (un "Foto del producto" repetido en todas las fotos no
+  // sirve para ninguna de las tres cosas).
+  function fotoOPlaceholder(foto, categoria, nombre){
     if (!foto) return mockupPlaceholder(categoria);
     const miniatura = urlMiniaturaPublica(foto);
     const respaldo = encodeURI(foto);
-    return `<img src="${escaparHtmlPublico(miniatura)}" alt="Foto del producto" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${respaldo}';">`;
+    const textoAlt = nombre ? `${nombre} — Budines by Sofi` : 'Foto del producto';
+    return `<img src="${escaparHtmlPublico(miniatura)}" alt="${escaparHtmlPublico(textoAlt)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${respaldo}';">`;
   }
 
   async function cargarCatalogoPublico(){
@@ -771,7 +818,7 @@
   function tarjetaDestacadoHtml(p){
     return `
       <div class="item-catalogo-publico">
-        <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria)}</div>
+        <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria, p.nombre)}</div>
         <div class="info-item">
           <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
           ${metaProductoHtml(p)}
@@ -995,7 +1042,7 @@
         <div class="grilla-catalogo-publico">
           ${encontrados.map((p) => `
             <div class="item-catalogo-publico">
-              <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria)}</div>
+              <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria, p.nombre)}</div>
               <div class="info-item">
                 <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
                 ${metaProductoHtml(p)}
@@ -1082,7 +1129,7 @@
       <div class="grilla-catalogo-publico">
         ${productosDeCategoria.map((p) => `
           <div class="item-catalogo-publico">
-            <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria)}</div>
+            <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria, p.nombre)}</div>
             <div class="info-item">
               <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
               ${metaProductoHtml(p)}
@@ -1226,7 +1273,7 @@
       <div class="miniaturas-detalle">
         ${fotos.map((url, indice) => `
           <button type="button" data-foto-indice="${indice}" class="${indice === 0 ? 'activa' : ''}">
-            <img src="${escaparHtmlPublico(urlMiniaturaPublica(url))}" alt="Miniatura ${indice + 1}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${encodeURI(url)}';">
+            <img src="${escaparHtmlPublico(urlMiniaturaPublica(url))}" alt="${escaparHtmlPublico(producto.nombre)} — foto ${indice + 1}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${encodeURI(url)}';">
           </button>
         `).join('')}
       </div>
@@ -1234,7 +1281,7 @@
 
     catalogoDetalleContenido.innerHTML = `
       <div class="detalle-producto">
-        <div class="foto-detalle" id="fotoPrincipalDetalle">${fotos.length ? `<img src="${escaparHtmlPublico(fotos[0])}" alt="Foto del producto">` : mockupPlaceholder(producto.categoria)}</div>
+        <div class="foto-detalle" id="fotoPrincipalDetalle">${fotos.length ? `<img src="${escaparHtmlPublico(fotos[0])}" alt="${escaparHtmlPublico(producto.nombre)} — Budines by Sofi">` : mockupPlaceholder(producto.categoria)}</div>
         ${miniaturasHtml}
         <div class="nombre">${escaparHtmlPublico(producto.nombre)}</div>
         <div class="meta">${escaparHtmlPublico(producto.categoriaVisible || producto.categoria || '')}</div>
@@ -1274,7 +1321,7 @@
       catalogoDetalleContenido.querySelectorAll('.miniaturas-detalle button').forEach((boton) => {
         boton.addEventListener('click', () => {
           const indice = Number(boton.getAttribute('data-foto-indice'));
-          fotoPrincipalDetalle.innerHTML = `<img src="${escaparHtmlPublico(fotos[indice])}" alt="Foto del producto">`;
+          fotoPrincipalDetalle.innerHTML = `<img src="${escaparHtmlPublico(fotos[indice])}" alt="${escaparHtmlPublico(producto.nombre)} — foto ${indice + 1}">`;
           catalogoDetalleContenido.querySelectorAll('.miniaturas-detalle button').forEach((b) => b.classList.remove('activa'));
           boton.classList.add('activa');
         });
@@ -1315,7 +1362,7 @@
         <div class="grilla-relacionados">
           ${relacionados.map((p, indice) => `
             <div class="item-catalogo-publico">
-              <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria)}</div>
+              <div class="foto-item">${fotoOPlaceholder(p.foto, p.categoria, p.nombre)}</div>
               <div class="info-item">
                 <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
                 ${metaProductoHtml(p)}

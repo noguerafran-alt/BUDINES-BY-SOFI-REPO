@@ -110,3 +110,43 @@ y usar esa URL final desde el celular.
 - El servidor SIEMPRE agrega la fila al final de la pestaña indicada — no hace falta
   que la hoja tenga una estructura especial, solo que el nombre de la pestaña coincida
   con `GOOGLE_SHEET_NAME` en tu `.env`.
+
+## SEO (cómo aparece el sitio en Google)
+
+El catálogo es una sola página que arma los productos con JavaScript y refleja
+el producto abierto en la URL (`/?producto=slug-del-nombre`). Para una persona
+eso funciona bien, pero un buscador pide la URL al servidor y recibiría siempre
+el mismo HTML — mismo título y mismo canonical para todos los productos.
+
+`seo.js` resuelve eso: intercepta la home **antes** de `express.static` y, si la
+URL trae `?producto=`, reemplaza el bloque de meta tags del HTML por uno propio
+de ese producto (título, descripción, imagen para compartir y schema `Product`
+con precio y stock). El frontend no cambia: sigue leyendo `?producto=` igual.
+
+Piezas:
+
+| Archivo | Qué hace |
+|---|---|
+| `seo.js` | Meta tags por producto + `/sitemap.xml` generado desde el catálogo |
+| `public/index.html` | Meta tags de la home, entre las marcas `SEO:INICIO` / `SEO:FIN` |
+| `public/robots.txt` | Permite indexar el catálogo, bloquea admin y checkout |
+
+Cosas a tener en cuenta al tocar esto:
+
+- **`SITIO_URL` no es `PUBLIC_URL`.** `PUBLIC_URL` es la dirección interna del
+  hosting (`*.onrender.com`), la que necesitan Payway y WhatsApp. `SITIO_URL` es
+  el dominio propio y es la única que se usa para SEO. Si se mezclan, los
+  canonical apuntan a onrender y el dominio propio queda afuera de Google.
+- **El slug se calcula en dos lados** y tienen que coincidir: `slugProducto()` en
+  `seo.js` y la función del mismo nombre en `public/index.html`.
+- **Las marcas `SEO:INICIO` / `SEO:FIN`** delimitan qué se reemplaza. Si se mueven
+  o renombran, hay que actualizar `seo.js` (avisa por consola si no las encuentra).
+- El catálogo se cachea 5 minutos para no gastar cuota de la API de Sheets con
+  las visitas de los bots, que son muchas y seguidas.
+
+Después de subir esto a producción, falta hacer una vez, a mano:
+
+1. Dar de alta el sitio en [Google Search Console](https://search.google.com/search-console)
+   y enviar `https://budines-by-sofi.com.ar/sitemap.xml`.
+2. Crear/completar el perfil de **Google Business** (es lo que más mueve la aguja
+   para un negocio local: aparece en Maps y en las búsquedas con intención de compra).

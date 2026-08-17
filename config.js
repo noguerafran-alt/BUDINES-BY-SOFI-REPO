@@ -365,6 +365,16 @@ module.exports = {
   // funcionar (ver README, sección de ngrok).
   PUBLIC_URL: (process.env.PUBLIC_URL || '').replace(/\/+$/, ''),
 
+  // Dominio propio con el que el sitio se muestra al publico (sin barra
+  // al final). Es DISTINTO de PUBLIC_URL a proposito: PUBLIC_URL suele
+  // ser la direccion interna del hosting (*.onrender.com), y usarla para
+  // SEO seria un problema — el <link rel="canonical"> y el sitemap le
+  // estarian diciendo a Google que la version "buena" de cada pagina es
+  // la de onrender, dividiendo el posicionamiento entre dos dominios y
+  // dejando el dominio propio afuera de los resultados.
+  // Solo la usa seo.js.
+  SITIO_URL: (process.env.SITIO_URL || 'https://budines-by-sofi.com.ar').replace(/\/+$/, ''),
+
   /* ------------------------------------------------------------
    * 5) PAGOS — dos opciones para el comprador: Payway (link de pago
    *    hospedado — el comprador carga la tarjeta en una pagina de
