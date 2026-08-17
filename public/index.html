@@ -371,7 +371,7 @@
   }
   .item-catalogo-publico{
     border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
-    display:flex; flex-direction:column;
+    display:flex; flex-direction:column; cursor:pointer;
     transition:border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
   }
   .item-catalogo-publico:hover{
@@ -412,6 +412,9 @@
   .item-catalogo-publico button{
     background:none; border:1px solid var(--accent); color:var(--accent); border-radius:var(--radius);
     padding:8px 10px; font-size:12.5px; font-family:'Baloo 2', sans-serif; cursor:pointer; margin-top:auto;
+  }
+  .item-catalogo-publico button:disabled{
+    border-color:var(--line); color:var(--ink-muted); cursor:not-allowed;
   }
   .detalle-producto .foto-detalle{
     width:100%; max-width:320px; aspect-ratio:1/1; border-radius:var(--radius); overflow:hidden;
@@ -822,7 +825,7 @@
         <div class="info-item">
           <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
           ${metaProductoHtml(p)}
-          <button type="button" data-sku-destacado="${escaparHtmlPublico(p.skuGeneral)}">Ver más</button>
+          <button type="button" data-sku-destacado="${escaparHtmlPublico(p.skuGeneral)}" ${puedeComprarProducto(p) ? '' : 'disabled'}>Agregar al carrito</button>
         </div>
       </div>
     `;
@@ -962,12 +965,10 @@
       iniciarAutoavanceCarrusel(pista);
 
       catalogoDestacados.querySelectorAll('[data-sku-destacado]').forEach((boton) => {
-        boton.addEventListener('click', () => {
-          const skuGeneral = boton.getAttribute('data-sku-destacado');
-          const producto = productosDestacadosPorSku.get(skuGeneral)
-            || catalogoPublicoProductos.find((p) => p.skuGeneral === skuGeneral);
-          if (producto) mostrarDetalleProductoPublico(producto);
-        });
+        const skuGeneral = boton.getAttribute('data-sku-destacado');
+        const producto = productosDestacadosPorSku.get(skuGeneral)
+          || catalogoPublicoProductos.find((p) => p.skuGeneral === skuGeneral);
+        conectarTarjetaProducto(boton, producto);
       });
     } catch (err) {
       // Si falla, simplemente no se muestra la sección — no es crítico
@@ -1046,7 +1047,7 @@
               <div class="info-item">
                 <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
                 ${metaProductoHtml(p)}
-                <button type="button" data-indice="${p.indiceGlobal}">Ver más</button>
+                <button type="button" data-indice="${p.indiceGlobal}" ${puedeComprarProducto(p) ? '' : 'disabled'}>Agregar al carrito</button>
               </div>
             </div>
           `).join('')}
@@ -1056,10 +1057,8 @@
       catalogoPublicoLista.innerHTML = `<div class="seccion-categoria-catalogo">${gridHtmlBusqueda}</div>`;
 
       catalogoPublicoLista.querySelectorAll('button[data-indice]').forEach((boton) => {
-        boton.addEventListener('click', () => {
-          const indice = Number(boton.getAttribute('data-indice'));
-          mostrarDetalleProductoPublico(catalogoPublicoProductos[indice]);
-        });
+        const indice = Number(boton.getAttribute('data-indice'));
+        conectarTarjetaProducto(boton, catalogoPublicoProductos[indice]);
       });
       return;
     }
@@ -1133,7 +1132,7 @@
             <div class="info-item">
               <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
               ${metaProductoHtml(p)}
-              <button type="button" data-indice="${p.indiceGlobal}">Ver más</button>
+              <button type="button" data-indice="${p.indiceGlobal}" ${puedeComprarProducto(p) ? '' : 'disabled'}>Agregar al carrito</button>
             </div>
           </div>
         `).join('')}
@@ -1226,10 +1225,8 @@
     });
 
     catalogoPublicoLista.querySelectorAll('button[data-indice]').forEach((boton) => {
-      boton.addEventListener('click', () => {
-        const indice = Number(boton.getAttribute('data-indice'));
-        mostrarDetalleProductoPublico(catalogoPublicoProductos[indice]);
-      });
+      const indice = Number(boton.getAttribute('data-indice'));
+      conectarTarjetaProducto(boton, catalogoPublicoProductos[indice]);
     });
   }
 
@@ -1366,7 +1363,7 @@
               <div class="info-item">
                 <div class="nombre">${escaparHtmlPublico(p.nombre)}</div>
                 ${metaProductoHtml(p)}
-                <button type="button" data-relacionado-indice="${indice}">Ver más</button>
+                <button type="button" data-relacionado-indice="${indice}" ${puedeComprarProducto(p) ? '' : 'disabled'}>Agregar al carrito</button>
               </div>
             </div>
           `).join('')}
@@ -1375,10 +1372,8 @@
     `;
 
     contenedor.querySelectorAll('button[data-relacionado-indice]').forEach((boton) => {
-      boton.addEventListener('click', () => {
-        const indice = Number(boton.getAttribute('data-relacionado-indice'));
-        mostrarDetalleProductoPublico(relacionados[indice]);
-      });
+      const indice = Number(boton.getAttribute('data-relacionado-indice'));
+      conectarTarjetaProducto(boton, relacionados[indice]);
     });
   }
 
@@ -1623,6 +1618,44 @@
     }
     guardarCarrito(items);
     return true;
+  }
+
+  function puedeComprarProducto(p){
+    return Boolean(p.precio) && Boolean(p.disponible);
+  }
+
+  /* Feedback del botón "Agregar al carrito" en las tarjetas de las
+     grillas (destacados, búsqueda, categoría, relacionados): confirma
+     en el propio botón sin abrir el detalle ni recargar nada. */
+  function manejarClickAgregarCarrito(boton, producto){
+    const agregado = agregarAlCarrito(producto);
+    const textoOriginal = boton.textContent;
+    boton.disabled = true;
+    boton.textContent = agregado ? 'Agregado ✓' : 'Sin stock';
+    setTimeout(() => {
+      boton.textContent = textoOriginal;
+      boton.disabled = !puedeComprarProducto(producto);
+    }, 1100);
+  }
+
+  /* Conecta una tarjeta de producto (en cualquiera de las 4 grillas):
+     el botón agrega al carrito sin navegar, y tocar el resto de la
+     tarjeta (foto, nombre, precio) abre el detalle — antes todo el
+     botón decía "Ver más" y llevaba al detalle; ahora "Ver más" pasó a
+     ser la tarjeta entera. */
+  function conectarTarjetaProducto(boton, producto){
+    if (!producto) return;
+    boton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      manejarClickAgregarCarrito(boton, producto);
+    });
+    const tarjeta = boton.closest('.item-catalogo-publico');
+    if (tarjeta) {
+      tarjeta.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        mostrarDetalleProductoPublico(producto);
+      });
+    }
   }
 
   function cambiarCantidadCarrito(skuGeneral, delta){
