@@ -58,6 +58,7 @@
     --bg-header:#F3D7D3; --header-text:#3F5347; --header-line:rgba(63,82,71,0.12);
     --accent-terracota:#5C7A65; --accent-terracota-soft:rgba(92,122,101,0.12);
     --sage:#5C7A65; --sage-dark:#46604F; --sage-soft:rgba(92,122,101,0.14);
+    --icon-bag:#6B3E24; --icon-user:#3F7A4A;
   }
   *{ box-sizing:border-box; }
   body{
@@ -148,12 +149,19 @@
   .btn-icono-simetrico{
     background:none; border:none; color:var(--ink-muted); cursor:pointer; padding:0;
     font-size:28px; line-height:1; justify-self:center;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:40px; height:40px; flex:0 0 auto;
   }
+  .btn-icono-simetrico svg{ width:28px; height:28px; display:block; }
   .barra-superior-catalogo .btn-icono-simetrico{ color:var(--header-text); }
+  .barra-superior-catalogo .btn-carrito-header,
+  .btn-carrito-header{ color:var(--icon-bag); }
+  .barra-superior-catalogo .btn-login-cliente,
+  .btn-login-cliente{ color:var(--icon-user); }
   .acciones-header-catalogo{ display:flex; align-items:center; gap:14px; justify-self:end; }
   .btn-carrito-header{ position:relative; }
   .badge-carrito{
-    position:absolute; top:-6px; right:-10px; min-width:16px; height:16px; padding:0 3px;
+    position:absolute; top:-2px; right:-4px; min-width:16px; height:16px; padding:0 3px;
     border-radius:8px; background:var(--accent-terracota); color:#fff; font-size:10px;
     font-family:'IBM Plex Mono', monospace; line-height:16px; text-align:center;
   }
@@ -535,7 +543,8 @@
     .barra-superior-catalogo{ gap:6px; margin:-14px -16px 16px; padding:12px 16px; }
     #vistaCatalogo .volver{ font-size:22px; }
     .logo-barra-catalogo{ height:30px; }
-    .btn-icono-simetrico{ font-size:22px; }
+    .btn-icono-simetrico{ width:36px; height:36px; }
+    .btn-icono-simetrico svg{ width:26px; height:26px; }
     .grilla-catalogo-publico{ grid-template-columns:repeat(2, 1fr); gap:10px; }
   }
 </style>
@@ -651,9 +660,26 @@
     </a>
     <div class="acciones-header-catalogo">
       <button class="btn-icono-simetrico btn-carrito-header" id="btnAbrirCarrito" title="Carrito" aria-label="Carrito">
-        🛒<span class="badge-carrito oculto" id="badgeCarrito">0</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="5" y="8" width="14" height="13" rx="1.8"/>
+          <path d="M9 11V7.2A3 3 0 0 1 12 4.2 3 3 0 0 1 15 7.2V11"/>
+        </svg>
+        <span class="badge-carrito oculto" id="badgeCarrito">0</span>
       </button>
-      <button class="btn-icono-simetrico btn-login-cliente" id="btnLoginCliente" title="Ingresar" aria-label="Ingresar">👤</button>
+      <button class="btn-icono-simetrico btn-login-cliente" id="btnLoginCliente" title="Ingresar" aria-label="Ingresar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <defs>
+            <clipPath id="clip-icono-usuario">
+              <circle cx="12" cy="12" r="9.15"/>
+            </clipPath>
+          </defs>
+          <circle cx="12" cy="12" r="9.15" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <g clip-path="url(#clip-icono-usuario)">
+            <circle cx="12" cy="8.55" r="3.15" fill="currentColor"/>
+            <ellipse cx="12" cy="18.5" rx="6.5" ry="4.7" fill="currentColor"/>
+          </g>
+        </svg>
+      </button>
     </div>
   </div>
 
