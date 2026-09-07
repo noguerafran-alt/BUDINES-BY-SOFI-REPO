@@ -252,6 +252,41 @@ function metaTagsProductoInexistente(urlBase) {
 <meta name="robots" content="noindex, follow">`;
 }
 
+
+/* Lista de productos en <noscript> para crawlers sin JS (anti-SPA).
+   Se inyecta en home entre CATALOGO_SSR:INICIO / FIN. */
+const MARCA_CATALOGO_INICIO = '<!-- CATALOGO_SSR:INICIO -->';
+const MARCA_CATALOGO_FIN = '<!-- CATALOGO_SSR:FIN -->';
+
+function bloqueCatalogoNoscript(productos, urlBase) {
+  const items = (Array.isArray(productos) ? productos : []).slice(0, 12);
+  if (items.length === 0) return '';
+  const lis = items.map((prod) => {
+    const nombre = escaparAtributo(prod.nombre || prod.skuGeneral || 'Producto');
+    const precio = prod.precio != null && prod.precio !== '' ? ` — $${escaparAtributo(String(prod.precio))}` : '';
+    const href = `${urlBase}/?producto=${encodeURIComponent(slugProducto(prod))}`;
+    return `        <li><a href="${escaparAtributo(href)}">${nombre}</a>${precio}</li>`;
+  }).join('\n');
+  return `    <noscript class="catalogo-ssr-noscript">
+      <h2>Catálogo</h2>
+      <ul>
+${lis}
+      </ul>
+    </noscript>
+`;
+}
+
+function inyectarCatalogoNoscript(html, productos, urlBase) {
+  const inicio = html.indexOf(MARCA_CATALOGO_INICIO);
+  const fin = html.indexOf(MARCA_CATALOGO_FIN);
+  if (inicio === -1 || fin === -1 || fin < inicio) return html;
+  const bloque = bloqueCatalogoNoscript(productos, urlBase);
+  if (!bloque) return html;
+  return html.slice(0, inicio + MARCA_CATALOGO_INICIO.length)
+    + '\n' + bloque
+    + html.slice(fin);
+}
+
 /* ------------------------------------------------------------
  * Rutas
  * ------------------------------------------------------------ */
@@ -279,9 +314,15 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
 
     const valorProducto = req.query.producto;
 
-    // Sin ?producto= es la home: el HTML ya trae sus propios meta tags
-    // (los de la home) entre las marcas, no hay nada que reemplazar.
+    // Sin ?producto= es la home: meta tags ya vienen en el HTML;
+    // inyectamos el catálogo SSR (noscript) con precios/nombres actuales.
     if (!valorProducto || typeof valorProducto !== 'string') {
+      try {
+        const productosHome = await obtenerProductos();
+        html = inyectarCatalogoNoscript(html, productosHome, base);
+      } catch (err) {
+        console.error('SEO: no se pudo inyectar catálogo SSR en home:', err.message);
+      }
       return res.type('html').send(html);
     }
 
@@ -314,20 +355,29 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
      entran y salen productos del catalogo, sin que nadie tenga que
      acordarse de editar un XML a mano. */
   app.get('/sitemap.xml', async (req, res) => {
-    const productos = await obtenerProductos();
+    // Siempre 200: si Sheets falla, devolvemos al menos home + legales.
+    let productos = [];
+    try {
+      productos = await obtenerProductos();
+      if (!Array.isArray(productos)) productos = [];
+    } catch (err) {
+      console.error('SEO sitemap: catálogo no disponible:', err.message);
+      productos = [];
+    }
 
-    const urls = [
-      { loc: `${base}/`, priority: '1.0', changefreq: 'daily' },
-      ...productos.map((p) => ({
-        loc: `${base}/?producto=${encodeURIComponent(slugProducto(p))}`,
-        priority: '0.8',
-        changefreq: 'weekly',
-      })),
-      { loc: `${base}/privacidad.html`, priority: '0.3', changefreq: 'yearly' },
-      { loc: `${base}/terminos.html`, priority: '0.3', changefreq: 'yearly' },
-    ];
+    try {
+      const urls = [
+        { loc: `${base}/`, priority: '1.0', changefreq: 'daily' },
+        ...productos.map((p) => ({
+          loc: `${base}/?producto=${encodeURIComponent(slugProducto(p))}`,
+          priority: '0.8',
+          changefreq: 'weekly',
+        })),
+        { loc: `${base}/privacidad.html`, priority: '0.3', changefreq: 'yearly' },
+        { loc: `${base}/terminos.html`, priority: '0.3', changefreq: 'yearly' },
+      ];
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url>
     <loc>${escaparAtributo(u.loc)}</loc>
@@ -337,7 +387,20 @@ ${urls.map((u) => `  <url>
 </urlset>
 `;
 
-    res.type('application/xml').send(xml);
+      res.status(200).type('application/xml').set('Cache-Control', 'public, max-age=300').send(xml);
+    } catch (err) {
+      console.error('SEO sitemap: error armando XML:', err.message);
+      const fallback = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${escaparAtributo(`${base}/`)}</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+`;
+      res.status(200).type('application/xml').send(fallback);
+    }
   });
 }
 

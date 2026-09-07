@@ -11,21 +11,21 @@
      producto puede rankear por su nombre en Google y el link se ve bien
      al compartirlo. Si movés o renombrás estas marcas, actualizá seo.js. -->
 <!-- SEO:INICIO -->
-<title>Budines Artesanales de Limón y Naranja | Budines by Sofi</title>
+<title>Budines by Sofi | Budines artesanales de limón y naranja</title>
 <meta name="description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp. Budines by Sofi.">
 <link rel="canonical" href="https://budines-by-sofi.com.ar/">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Budines by Sofi">
-<meta property="og:title" content="Budines Artesanales de Limón y Naranja | Budines by Sofi">
+<meta property="og:title" content="Budines by Sofi | Budines artesanales de limón y naranja">
 <meta property="og:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
 <meta property="og:url" content="https://budines-by-sofi.com.ar/">
 <meta property="og:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
 <meta property="og:locale" content="es_AR">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Budines Artesanales de Limón y Naranja | Budines by Sofi">
+<meta name="twitter:title" content="Budines by Sofi | Budines artesanales de limón y naranja">
 <meta name="twitter:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
 <meta name="twitter:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
 
@@ -39,7 +39,17 @@
   "logo": "https://budines-by-sofi.com.ar/budines-logo-final.jpg",
   "description": "Budines caseros artesanales de limón y naranja, chicos y grandes, con pedido online y entrega coordinada por WhatsApp.",
   "priceRange": "$$",
-  "areaServed": "AR"
+  "areaServed": "AR",
+  "telephone": "+5491168239163",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "telephone": "+5491168239163",
+    "availableLanguage": ["es"]
+  },
+  "sameAs": [
+    "https://wa.me/5491168239163"
+  ]
 }
 </script>
 <!-- SEO:FIN -->
@@ -548,11 +558,33 @@
     .btn-icono-simetrico svg{ width:26px; height:26px; }
     .grilla-catalogo-publico{ grid-template-columns:repeat(2, 1fr); gap:10px; }
   }
+
+  .brand-home-seo{
+    margin:8px 0 18px; padding:4px 0 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand-home-seo h1{
+    margin:0; font-family:'Baloo 2', sans-serif; font-weight:700;
+    font-size:clamp(28px, 5vw, 36px); color:var(--ink); letter-spacing:0.01em;
+    line-height:1.15;
+  }
+  .brand-home-seo .brand-home-sub{
+    margin:6px 0 0; font-size:14px; color:var(--ink-muted); line-height:1.4;
+  }
+  .catalogo-ssr-noscript{
+    margin:0 0 20px; padding:12px 14px; border:1px dashed var(--line);
+    border-radius:var(--radius); background:var(--bg-alt);
+  }
+  .catalogo-ssr-noscript h2{
+    margin:0 0 8px; font-family:'Baloo 2', sans-serif; font-size:18px; color:var(--ink);
+  }
+  .catalogo-ssr-noscript ul{ margin:0; padding-left:18px; }
+  .catalogo-ssr-noscript li{ margin:4px 0; font-size:14px; }
 </style>
 </head>
 <body>
 
-<h1 style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;">Budines by Sofi — Budines artesanales de limón y naranja, hechos a pedido</h1>
+
 
 <div class="fullscreen hidden" id="pantallaCarrito">
   <div class="barra-superior-catalogo barra-superior-fullscreen">
@@ -685,6 +717,21 @@
   </div>
 
   <div id="catalogoListaView">
+    <header class="brand-home-seo">
+      <h1>Budines by Sofi</h1>
+      <p class="brand-home-sub">Budines artesanales de limón y naranja, hechos a pedido</p>
+    </header>
+<!-- CATALOGO_SSR:INICIO -->
+    <noscript class="catalogo-ssr-noscript">
+      <h2>Catálogo</h2>
+      <ul>
+        <li><a href="/?producto=budin-chico-limon">BUDIN CHICO LIMON</a> — $12000</li>
+        <li><a href="/?producto=budin-chico-naranja">BUDIN CHICO NARANJA</a> — $12000</li>
+        <li><a href="/?producto=budin-grande-limon">BUDIN GRANDE LIMON</a> — $22000</li>
+        <li><a href="/?producto=budin-grande-naranja">BUDIN GRANDE NARANJA</a> — $22000</li>
+      </ul>
+    </noscript>
+<!-- CATALOGO_SSR:FIN -->
     <div id="catalogoDestacados"></div>
     <div class="fila-buscador-categorias">
       <button type="button" class="btn-mostrar-buscador" id="btnMostrarBuscadorCatalogo">🔍 Buscar</button>
