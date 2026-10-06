@@ -182,7 +182,7 @@ function metaTagsProducto(producto, urlBase) {
     producto.descripcion
       || `${nombre}${categoria ? `. ${categoria}` : ''}. Elaborado artesanalmente por ${NOMBRE_NEGOCIO}.`
         + `${producto.precio ? ` $${producto.precio}.` : ''}`
-        + ' Pedilo online y coordinamos la entrega por WhatsApp.',
+        + ' Pedilo online en San Isidro: entrega y retiro solo ahí. Coordinamos por WhatsApp.',
     155,
   );
 
@@ -246,8 +246,8 @@ ${jsonSeguro(schema)}
    version buena es la home. Sin esto, cada producto discontinuado deja
    una URL fantasma compitiendo en el buscador. */
 function metaTagsProductoInexistente(urlBase) {
-  return `<title>Catálogo de budines artesanales | ${NOMBRE_NEGOCIO}</title>
-<meta name="description" content="Budines caseros artesanales de limón y naranja. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
+  return `<title>Catálogo de budines artesanales en San Isidro | ${NOMBRE_NEGOCIO}</title>
+<meta name="description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.">
 <link rel="canonical" href="${escaparAtributo(`${urlBase}/`)}">
 <meta name="robots" content="noindex, follow">`;
 }

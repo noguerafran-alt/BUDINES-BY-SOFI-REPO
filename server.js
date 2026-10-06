@@ -2028,11 +2028,58 @@ async function sincronizarStockPedido(sheetsClient, pedido, nuevoEstado) {
   };
 }
 
+
+/* Zona de entrega/retiro: solo partido de San Isidro.
+   Domicilio fuera de zona se rechaza; retiro siempre se permite. */
+const BARRIOS_SAN_ISIDRO = [
+  'san isidro', 'acassuso', 'beccar', 'béccar', 'martinez', 'martínez',
+  'boulogne', 'boulogne sur mer', 'villa adelina',
+];
+
+function normalizarBarrio(valor) {
+  return String(valor || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function barrioEnZonaSanIsidro(barrio) {
+  const n = normalizarBarrio(barrio);
+  if (!n || n === 'otro') return false;
+  return BARRIOS_SAN_ISIDRO.some((b) => normalizarBarrio(b) === n);
+}
+
+function resolverEntregaPedido({ barrio, ciudad, provincia, metodoEnvio }) {
+  const barrioLimpio = sanitizarTexto(barrio || ciudad || '', 80);
+  if (!barrioLimpio) {
+    return { error: 'Elegí tu barrio / zona (entrega y retiro solo en San Isidro).' };
+  }
+  const metodoRaw = String(metodoEnvio || '').trim().toLowerCase();
+  const quiereDomicilio = metodoRaw.includes('domicilio') || metodoRaw === 'domicilio' || metodoRaw.includes('envio a domicilio') || metodoRaw.includes('envío a domicilio');
+  const enZona = barrioEnZonaSanIsidro(barrioLimpio);
+
+  if (quiereDomicilio && !enZona) {
+    return { error: 'Por ahora no entregamos ahí. Elegí retiro en San Isidro o un barrio del partido.' };
+  }
+
+  const metodoFinal = quiereDomicilio && enZona
+    ? 'Envío a domicilio'
+    : 'Retiro en el local';
+
+  return {
+    ciudad: sanitizarTexto(ciudad || barrioLimpio, 80),
+    provincia: sanitizarTexto(provincia || 'Buenos Aires', 80),
+    metodoEnvio: metodoFinal,
+    direccion: quiereDomicilio && enZona ? sanitizarTexto(`San Isidro — ${barrioLimpio}`, 150) : '',
+  };
+}
+
 app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
   try {
     const {
       skuGeneral, cantidad, nombre, email, telefono, notas,
-      metodoPago,
+      metodoPago, barrio, ciudad, provincia, metodoEnvio,
     } = req.body;
 
     if (!skuGeneral || !String(skuGeneral).trim()) {
@@ -2046,6 +2093,10 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
     }
     if (!telefono || !/^\d+$/.test(String(telefono).trim())) {
       return res.status(400).json({ error: 'Ingresá un teléfono válido, solo números (lo necesitamos para coordinar la entrega por WhatsApp).' });
+    }
+    const entrega = resolverEntregaPedido({ barrio, ciudad, provincia, metodoEnvio });
+    if (entrega.error) {
+      return res.status(400).json({ error: entrega.error });
     }
     // Tope razonable: evita pedidos absurdos por error de tipeo o por un
     // script automatizado, sin restringir compras normales de verdad.
@@ -2098,11 +2149,11 @@ app.post('/crear-pago', limiteEscrituraPublica, async (req, res) => {
       nombreCliente: sanitizarTexto(nombre, 150),
       emailCliente: sanitizarTexto(email, 254),
       telefonoCliente: sanitizarTelefono(telefono),
-      direccion: '',
-      ciudad: '',
-      provincia: '',
+      direccion: entrega.direccion,
+      ciudad: entrega.ciudad,
+      provincia: entrega.provincia,
       codigoPostal: '',
-      metodoEnvio: 'A coordinar por WhatsApp',
+      metodoEnvio: entrega.metodoEnvio,
       estado: 'Pendiente de pago',
       transportista: '',
       numeroSeguimiento: '',
@@ -2176,7 +2227,7 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
   try {
     const {
       items, nombre, email, telefono, notas,
-      metodoPago,
+      metodoPago, barrio, ciudad, provincia, metodoEnvio,
     } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -2196,6 +2247,10 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
     }
     if (metodoPago !== 'transferencia') {
       return res.status(400).json({ error: 'Por ahora el carrito solo admite pago por transferencia.' });
+    }
+    const entrega = resolverEntregaPedido({ barrio, ciudad, provincia, metodoEnvio });
+    if (entrega.error) {
+      return res.status(400).json({ error: entrega.error });
     }
 
     const sheetsClient = google.sheets({ version: 'v4', auth });
@@ -2257,11 +2312,11 @@ app.post('/crear-pago-carrito', limiteEscrituraPublica, async (req, res) => {
         nombreCliente: sanitizarTexto(nombre, 150),
         emailCliente: sanitizarTexto(email, 254),
         telefonoCliente: sanitizarTelefono(telefono),
-        direccion: '',
-        ciudad: '',
-        provincia: '',
+        direccion: entrega.direccion,
+        ciudad: entrega.ciudad,
+        provincia: entrega.provincia,
         codigoPostal: '',
-        metodoEnvio: 'A coordinar por WhatsApp',
+        metodoEnvio: entrega.metodoEnvio,
         estado: 'Pendiente de pago',
         transportista: '',
         numeroSeguimiento: '',
