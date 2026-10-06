@@ -11,22 +11,22 @@
      producto puede rankear por su nombre en Google y el link se ve bien
      al compartirlo. Si movés o renombrás estas marcas, actualizá seo.js. -->
 <!-- SEO:INICIO -->
-<title>Budines by Sofi | Budines artesanales de limón y naranja</title>
-<meta name="description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp. Budines by Sofi.">
+<title>Budines by Sofi | Budines artesanales en San Isidro</title>
+<meta name="description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp. Budines by Sofi.">
 <link rel="canonical" href="https://budines-by-sofi.com.ar/">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Budines by Sofi">
-<meta property="og:title" content="Budines by Sofi | Budines artesanales de limón y naranja">
-<meta property="og:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
+<meta property="og:title" content="Budines by Sofi | Budines artesanales en San Isidro">
+<meta property="og:description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.">
 <meta property="og:url" content="https://budines-by-sofi.com.ar/">
 <meta property="og:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
 <meta property="og:locale" content="es_AR">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Budines by Sofi | Budines artesanales de limón y naranja">
-<meta name="twitter:description" content="Budines caseros artesanales de limón y naranja, chicos y grandes. Hacé tu pedido online y coordiná la entrega por WhatsApp.">
+<meta name="twitter:title" content="Budines by Sofi | Budines artesanales en San Isidro">
+<meta name="twitter:description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.">
 <meta name="twitter:image" content="https://budines-by-sofi.com.ar/budines-logo-final.jpg">
 
 <script type="application/ld+json">
@@ -37,9 +37,12 @@
   "url": "https://budines-by-sofi.com.ar/",
   "image": "https://budines-by-sofi.com.ar/budines-logo-final.jpg",
   "logo": "https://budines-by-sofi.com.ar/budines-logo-final.jpg",
-  "description": "Budines caseros artesanales de limón y naranja, chicos y grandes, con pedido online y entrega coordinada por WhatsApp.",
+  "description": "Budines caseros artesanales de limón y naranja en San Isidro, con pedido online. Entrega y retiro solo en San Isidro; coordinamos por WhatsApp.",
   "priceRange": "$$",
-  "areaServed": "AR",
+  "areaServed": {
+    "@type": "AdministrativeArea",
+    "name": "San Isidro, Buenos Aires"
+  },
   "telephone": "+5491168239163",
   "contactPoint": {
     "@type": "ContactPoint",
@@ -559,6 +562,45 @@
     .grilla-catalogo-publico{ grid-template-columns:repeat(2, 1fr); gap:10px; }
   }
 
+  .banner-zona-fijo{
+    position:sticky; top:0; z-index:1500;
+    background:var(--stamp-green); color:#fff;
+    text-align:center; font-family:'Baloo 2', sans-serif;
+    font-size:13px; font-weight:600; letter-spacing:0.04em;
+    padding:8px 14px; line-height:1.3;
+  }
+  .bloque-zona-home{
+    margin:0 0 18px; padding:14px 16px;
+    border:1px solid var(--line); border-radius:var(--radius);
+    background:#fff;
+  }
+  .bloque-zona-home h2{
+    margin:0 0 6px; font-family:'Baloo 2', sans-serif; font-size:18px;
+    font-weight:700; color:var(--ink);
+  }
+  .bloque-zona-home p{
+    margin:0 0 10px; font-size:14px; color:var(--ink-muted); line-height:1.45;
+  }
+  .bloque-zona-home .cta-whatsapp-zona{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--stamp-green); color:#fff; text-decoration:none;
+    padding:10px 16px; border-radius:var(--radius);
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+  }
+  .metodo-envio-opciones{
+    display:flex; flex-direction:column; gap:8px; margin:0 0 12px; text-align:left;
+  }
+  .metodo-envio-opciones label{
+    display:flex; align-items:flex-start; gap:8px; font-size:14px;
+    font-weight:500; color:var(--ink); cursor:pointer;
+  }
+  .aviso-fuera-zona{
+    display:none; margin:0 0 12px; padding:10px 12px;
+    border-radius:var(--radius); background:var(--stamp-red-soft);
+    border:1px solid rgba(193,53,46,0.35); color:var(--stamp-red);
+    font-size:13px; text-align:left; line-height:1.4;
+  }
+  .aviso-fuera-zona.visible{ display:block; }
   .brand-home-seo{
     margin:8px 0 18px; padding:4px 0 12px;
     border-bottom:1px solid var(--line);
@@ -584,7 +626,7 @@
 </head>
 <body>
 
-
+<div class="banner-zona-fijo" role="status">Entrega y retiro solo en San Isidro</div>
 
 <div class="fullscreen hidden" id="pantallaCarrito">
   <div class="barra-superior-catalogo barra-superior-fullscreen">
@@ -659,7 +701,23 @@
     <input type="tel" id="inputTelefonoCheckout" placeholder="Tu teléfono" autocomplete="tel" inputmode="numeric" pattern="[0-9]*" required>
 
     <label>Entrega</label>
-    <p style="font-size:12px; color:var(--ink-muted); margin:-10px 0 10px;">La entrega se coordina por WhatsApp.</p>
+    <p style="font-size:12px; color:var(--ink-muted); margin:-10px 0 10px;">Entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.</p>
+    <div class="metodo-envio-opciones" role="radiogroup" aria-label="Método de entrega">
+      <label><input type="radio" name="metodoEnvio" value="retiro" checked> Retiro en San Isidro</label>
+      <label id="opcionEnvioDomicilio"><input type="radio" name="metodoEnvio" value="domicilio"> Entrega a domicilio (San Isidro)</label>
+    </div>
+    <label for="selectBarrioCheckout">Barrio / zona</label>
+    <select id="selectBarrioCheckout" required>
+      <option value="">Elegí tu barrio</option>
+      <option value="San Isidro">San Isidro</option>
+      <option value="Acassuso">Acassuso</option>
+      <option value="Beccar">Beccar</option>
+      <option value="Martínez">Martínez</option>
+      <option value="Boulogne">Boulogne</option>
+      <option value="Villa Adelina">Villa Adelina</option>
+      <option value="Otro">Otro (fuera de zona)</option>
+    </select>
+    <div class="aviso-fuera-zona" id="avisoFueraZona" role="alert">Por ahora no entregamos ahí. Podés elegir retiro en San Isidro o escribirnos por WhatsApp.</div>
 
     <label for="inputNotasCheckout">Notas <span class="opcional-tag">(opcional)</span></label>
     <input type="text" id="inputNotasCheckout" placeholder="Algo que debamos saber">
@@ -673,7 +731,7 @@
     <div id="panelTransferencia" class="panel-transferencia oculto">
       <p>Transferí el total de la compra a:</p>
       <div class="transferencia-datos" id="transferenciaDatos">Cargando datos...</div>
-      <p>Usá tu nombre como referencia. Apenas confirmemos que llegó el pago, coordinamos la entrega.</p>
+      <p>Usá tu nombre como referencia. Apenas confirmemos que llegó el pago, coordinamos entrega en San Isidro por WhatsApp.</p>
     </div>
 
     <button id="btnPagarCheckout">Confirmar pedido</button>
@@ -719,8 +777,13 @@
   <div id="catalogoListaView">
     <header class="brand-home-seo">
       <h1>Budines by Sofi</h1>
-      <p class="brand-home-sub">Budines artesanales de limón y naranja, hechos a pedido</p>
+      <p class="brand-home-sub">Budines artesanales de limón y naranja, hechos a pedido en San Isidro</p>
     </header>
+    <section class="bloque-zona-home" aria-label="Zona de entrega">
+      <h2>Zona: San Isidro</h2>
+      <p>Entrega y retiro solo en el partido de San Isidro (San Isidro, Acassuso, Beccar, Martínez, Boulogne, Villa Adelina). Elegí tu budín, confirmá el pedido y coordinamos por WhatsApp.</p>
+      <a class="cta-whatsapp-zona" id="ctaWhatsappZona" href="https://wa.me/5491168239163?text=Hola!%20Quiero%20pedir%20un%20bud%C3%ADn%20en%20San%20Isidro." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+    </section>
 <!-- CATALOGO_SSR:INICIO -->
     <noscript class="catalogo-ssr-noscript">
       <h2>Catálogo</h2>
@@ -1895,6 +1958,61 @@
 
   /* Campos comunes a ambos modos de checkout (comprador + entrega),
      reseteados siempre que se abre la pantalla. */
+  const BARRIOS_SAN_ISIDRO = ['San Isidro', 'Acassuso', 'Beccar', 'Martínez', 'Boulogne', 'Villa Adelina'];
+  const selectBarrioCheckout = document.getElementById('selectBarrioCheckout');
+  const avisoFueraZona = document.getElementById('avisoFueraZona');
+  const opcionEnvioDomicilio = document.getElementById('opcionEnvioDomicilio');
+
+  function barrioEnZona(barrio){
+    return BARRIOS_SAN_ISIDRO.includes(barrio);
+  }
+
+  function metodoEnvioSeleccionado(){
+    const el = document.querySelector('input[name="metodoEnvio"]:checked');
+    return el ? el.value : 'retiro';
+  }
+
+  function actualizarOpcionesEnvioPorZona(){
+    const barrio = selectBarrioCheckout.value;
+    const fuera = barrio === 'Otro' || (barrio && !barrioEnZona(barrio));
+    const radioDomicilio = document.querySelector('input[name="metodoEnvio"][value="domicilio"]');
+    if (fuera) {
+      avisoFueraZona.classList.add('visible');
+      if (radioDomicilio) {
+        radioDomicilio.disabled = true;
+        if (radioDomicilio.checked) {
+          document.querySelector('input[name="metodoEnvio"][value="retiro"]').checked = true;
+        }
+      }
+      if (opcionEnvioDomicilio) opcionEnvioDomicilio.style.opacity = '0.55';
+    } else {
+      avisoFueraZona.classList.remove('visible');
+      if (radioDomicilio) radioDomicilio.disabled = false;
+      if (opcionEnvioDomicilio) opcionEnvioDomicilio.style.opacity = '';
+    }
+  }
+
+  function validarEntregaCheckout(){
+    const barrio = selectBarrioCheckout.value;
+    if (!barrio) {
+      mensajeCheckout.className = 'checkout-mensaje error';
+      mensajeCheckout.textContent = 'Elegí tu barrio / zona.';
+      selectBarrioCheckout.focus();
+      return null;
+    }
+    let metodo = metodoEnvioSeleccionado();
+    if (metodo === 'domicilio' && !barrioEnZona(barrio)) {
+      mensajeCheckout.className = 'checkout-mensaje error';
+      mensajeCheckout.textContent = 'Por ahora no entregamos ahí. Elegí retiro en San Isidro o un barrio del partido.';
+      actualizarOpcionesEnvioPorZona();
+      return null;
+    }
+    if (metodo === 'domicilio' && barrioEnZona(barrio)) {
+      return { barrio, metodoEnvio: 'Envío a domicilio', ciudad: barrio, provincia: 'Buenos Aires' };
+    }
+    return { barrio, metodoEnvio: 'Retiro en el local', ciudad: barrio === 'Otro' ? 'Fuera de zona (retiro)' : barrio, provincia: 'Buenos Aires' };
+  }
+
   function resetearCamposCompradorCheckout(){
     // Si el cliente esta logueado, precargamos nombre/email (los puede
     // editar igual) para no tener que volver a tipearlos cada compra.
@@ -1902,11 +2020,19 @@
     document.getElementById('inputEmailCheckout').value = sesionCliente ? sesionCliente.email : '';
     document.getElementById('inputTelefonoCheckout').value = '';
     document.getElementById('inputNotasCheckout').value = '';
+    selectBarrioCheckout.value = '';
+    document.querySelector('input[name="metodoEnvio"][value="retiro"]').checked = true;
+    actualizarOpcionesEnvioPorZona();
     document.querySelector(`input[name="metodoPago"][value="${PAYWAY_HABILITADO ? 'payway' : 'transferencia'}"]`).checked = true;
     mensajeCheckout.textContent = '';
     mensajeCheckout.className = 'checkout-mensaje';
     btnPagarCheckout.disabled = false;
   }
+
+  selectBarrioCheckout.addEventListener('change', actualizarOpcionesEnvioPorZona);
+  document.querySelectorAll('input[name="metodoEnvio"]').forEach((radio) => {
+    radio.addEventListener('change', actualizarOpcionesEnvioPorZona);
+  });
 
   // Telefono: solo digitos, se filtra cualquier otro caracter a medida
   // que se escribe (ademas del required + pattern del input, por si el
@@ -2016,6 +2142,8 @@
       document.getElementById('inputTelefonoCheckout').focus();
       return;
     }
+    const entrega = validarEntregaCheckout();
+    if (!entrega) return;
 
     btnPagarCheckout.disabled = true;
     btnPagarCheckout.textContent = metodoPago === 'payway' ? 'Redirigiendo a Payway...' : 'Confirmando pedido...';
@@ -2028,6 +2156,10 @@
           skuGeneral: productoEnCheckout.skuGeneral,
           cantidad, nombre, email, telefono, notas,
           metodoPago,
+          barrio: entrega.barrio,
+          ciudad: entrega.ciudad,
+          provincia: entrega.provincia,
+          metodoEnvio: entrega.metodoEnvio,
         }),
       });
       const data = await res.json();
@@ -2041,7 +2173,7 @@
       // Transferencia: no hay redirect, mostramos la confirmación acá mismo.
       const t = data.transferencia || {};
       mensajeCheckout.className = 'checkout-mensaje ok';
-      mensajeCheckout.textContent = `¡Listo! Tu pedido es ${data.pedidoId}. Transferí $${t.monto} y guardá el número de pedido como referencia. Coordinamos la entrega apenas confirmemos el pago.`;
+      mensajeCheckout.textContent = `¡Listo! Tu pedido es ${data.pedidoId}. Transferí $${t.monto} y guardá el número de pedido como referencia. Coordinamos entrega en San Isidro por WhatsApp.`;
       btnPagarCheckout.textContent = 'Pedido creado ✓';
       btnPagarCheckout.disabled = true;
     } catch (err) {
@@ -2082,6 +2214,8 @@
       document.getElementById('inputTelefonoCheckout').focus();
       return;
     }
+    const entrega = validarEntregaCheckout();
+    if (!entrega) return;
 
     btnPagarCheckout.disabled = true;
     btnPagarCheckout.textContent = 'Confirmando pedido...';
@@ -2094,6 +2228,10 @@
           items: items.map((it) => ({ skuGeneral: it.skuGeneral, cantidad: it.cantidad })),
           nombre, email, telefono, notas,
           metodoPago: 'transferencia',
+          barrio: entrega.barrio,
+          ciudad: entrega.ciudad,
+          provincia: entrega.provincia,
+          metodoEnvio: entrega.metodoEnvio,
         }),
       });
       const data = await res.json();
@@ -2101,7 +2239,7 @@
 
       const t = data.transferencia || {};
       mensajeCheckout.className = 'checkout-mensaje ok';
-      mensajeCheckout.textContent = `¡Listo! Tu pedido es ${data.pedidoIds.join(', ')}. Transferí $${t.monto} y guardá esos números como referencia. Coordinamos la entrega apenas confirmemos el pago.`;
+      mensajeCheckout.textContent = `¡Listo! Tu pedido es ${data.pedidoIds.join(', ')}. Transferí $${t.monto} y guardá esos números como referencia. Coordinamos entrega en San Isidro por WhatsApp.`;
       btnPagarCheckout.textContent = 'Pedido creado ✓';
       btnPagarCheckout.disabled = true;
       guardarCarrito([]);
@@ -2149,6 +2287,10 @@
     if (data.whatsappNumero) {
       btnAbrirWhatsapp.href = `https://wa.me/${data.whatsappNumero}?text=${encodeURIComponent('Hola! Tengo una consulta sobre un producto.')}`;
       btnAbrirWhatsapp.style.display = 'flex';
+      const ctaZona = document.getElementById('ctaWhatsappZona');
+      if (ctaZona) {
+        ctaZona.href = `https://wa.me/${data.whatsappNumero}?text=${encodeURIComponent('Hola! Quiero pedir un budín en San Isidro.')}`;
+      }
       // Con WhatsApp configurado, reemplaza al asistente de chat en vez de
       // convivir los dos botones flotantes.
       btnAbrirChat.style.display = 'none';

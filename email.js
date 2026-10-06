@@ -99,7 +99,7 @@ Monto: $${monto}
 Guardá este número de pedido como referencia: ${pedidoId}
 Producto: ${producto}${cantidadTexto}
 
-Apenas confirmemos que llegó el pago, coordinamos la entrega.
+Apenas confirmemos que llegó el pago, coordinamos entrega en San Isidro por WhatsApp.
 ${lineaWhatsappTexto}
 ${config.EMAIL_FROM_NAME}`;
 
@@ -110,7 +110,7 @@ ${config.EMAIL_FROM_NAME}`;
 Monto: $${escapeHtml(String(monto))}</p>
     <p>Guardá este número de pedido como referencia: <strong>${escapeHtml(pedidoId)}</strong><br>
     Producto: ${escapeHtml(producto)}${escapeHtml(cantidadTexto)}</p>
-    <p>Apenas confirmemos que llegó el pago, coordinamos la entrega.</p>
+    <p>Apenas confirmemos que llegó el pago, coordinamos entrega en San Isidro por WhatsApp.</p>
     ${lineaWhatsappHtml}
     <p>${escapeHtml(config.EMAIL_FROM_NAME)}</p>
   `;
@@ -180,7 +180,7 @@ Guardá estos números de pedido como referencia: ${pedidoIds.join(', ')}
 Productos:
 ${lineasItems.join('\n')}
 
-Apenas confirmemos que llegó el pago, coordinamos la entrega.
+Apenas confirmemos que llegó el pago, coordinamos entrega en San Isidro por WhatsApp.
 ${lineaWhatsappTexto}
 ${config.EMAIL_FROM_NAME}`;
 
@@ -191,7 +191,7 @@ ${config.EMAIL_FROM_NAME}`;
 Monto: $${escapeHtml(String(monto))}</p>
     <p>Guardá estos números de pedido como referencia: <strong>${escapeHtml(pedidoIds.join(', '))}</strong></p>
     <p>Productos:<br>${lineasItems.map((l) => escapeHtml(l)).join('<br>')}</p>
-    <p>Apenas confirmemos que llegó el pago, coordinamos la entrega.</p>
+    <p>Apenas confirmemos que llegó el pago, coordinamos entrega en San Isidro por WhatsApp.</p>
     ${lineaWhatsappHtml}
     <p>${escapeHtml(config.EMAIL_FROM_NAME)}</p>
   `;
