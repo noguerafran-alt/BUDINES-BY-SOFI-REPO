@@ -713,11 +713,11 @@ async function actualizarTarifaEnvio(sheetsClient, spreadsheetId, sheetName, pro
 /**
  * Arma el link publico a la ficha de un producto en el catalogo. Es el
  * mismo formato de URL que usa el catalogo para abrir un producto
- * directo (?producto=SKU). Devuelve '' si no hay PUBLIC_URL configurada.
+ * directo (/catalogo?producto=SKU). Devuelve '' si no hay PUBLIC_URL configurada.
  */
 function armarLinkCatalogo(skuGeneral) {
   if (!config.PUBLIC_URL || !skuGeneral) return '';
-  return `${config.PUBLIC_URL}/?producto=${encodeURIComponent(skuGeneral)}`;
+  return `${config.PUBLIC_URL}/catalogo?producto=${encodeURIComponent(skuGeneral)}`;
 }
 
 /**

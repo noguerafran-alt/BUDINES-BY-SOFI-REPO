@@ -289,7 +289,7 @@ async function generarRespuesta(sheetsClient, mensajeOriginal, telefonoDesde) {
   }
 
   if (esPedidoCatalogo(textoNormalizado)) {
-    const link = config.PUBLIC_URL ? `${config.PUBLIC_URL}/` : '(pedile el link del catálogo a la tienda)';
+    const link = config.PUBLIC_URL ? `${config.PUBLIC_URL}/catalogo` : '(pedile el link del catálogo a la tienda)';
     return `Mirá nuestro catálogo completo acá: ${link}\n\nSi ya sabés qué producto querés, mandame su SKU y te digo precio y disponibilidad.`;
   }
 
