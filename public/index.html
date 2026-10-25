@@ -112,6 +112,8 @@
      arriba en vez de centrarla para que siempre se pueda ver y scrollear
      todo el contenido. */
   #pantallaCheckout{ justify-content:flex-start; padding-top:130px; }
+  /* Compra por WhatsApp (como PROA): el checkout online queda fuera del flujo visible. */
+  body.compra-whatsapp #pantallaCheckout{ display:none !important; }
   /* Estas 3 pantallas tienen el mismo header fijo arriba; con solo el
      padding:28px por defecto de .fullscreen, el contenido quedaba pegado
      justo debajo. */
@@ -825,7 +827,7 @@
     <p class="eyebrow">Tu carrito</p>
     <div id="listaItemsCarrito"></div>
     <div class="total-carrito oculto" id="totalCarrito"></div>
-    <button type="button" id="btnIrAPagarCarrito">Continuar compra</button>
+    <button type="button" id="btnIrAPagarCarrito">Pedir por WhatsApp</button>
     <button class="acceso-admin-link" id="btnCerrarCarrito" style="width:100%;">Seguir viendo el catálogo</button>
   </div>
 </div>
@@ -1685,7 +1687,7 @@
         <div class="meta">${escaparHtmlPublico(producto.categoriaVisible || producto.categoria || '')}</div>
         <div class="meta">${producto.disponible ? 'En stock' : 'Sin stock'}</div>
         ${producto.precio ? `<div class="precio">$${escaparHtmlPublico(String(producto.precio))}</div>` : ''}
-        <button type="button" class="btn-comprar" id="btnComprarProducto" ${puedeComprar ? '' : 'disabled'}>Comprar ahora</button>
+        <button type="button" class="btn-comprar" id="btnComprarProducto" ${puedeComprar ? '' : 'disabled'}>Pedir por WhatsApp</button>
         <button type="button" class="btn-agregar-carrito" id="btnAgregarCarrito" ${puedeComprar ? '' : 'disabled'}>Agregar al carrito</button>
         <div id="mensajeAgregarCarrito" style="font-size:12.5px; margin-top:6px; min-height:1em;"></div>
         ${!puedeComprar ? '<div class="sin-stock-aviso">' + (producto.disponible ? 'Todavía no tiene precio cargado para comprar online.' : 'Sin stock por el momento.') + '</div>' : ''}
@@ -1698,7 +1700,10 @@
 
     const btnComprar = document.getElementById('btnComprarProducto');
     if (btnComprar) {
-      btnComprar.addEventListener('click', () => abrirCheckout(producto));
+      btnComprar.addEventListener('click', () => {
+        if (!COMPRA_ONLINE_HABILITADA) { pedirProductoPorWhatsapp(producto); return; }
+        abrirCheckout(producto);
+      });
     }
 
     const btnAgregarCarrito = document.getElementById('btnAgregarCarrito');
@@ -1962,6 +1967,73 @@
   /* ------------------------------------------------------------
    * CARRITO (localStorage, independiente del login de cliente)
    * ------------------------------------------------------------ */
+  /* ------------------------------------------------------------
+   * COMPRA POR WHATSAPP (mismo flujo que PROA): sin checkout online.
+   * El carrito y "Pedir por WhatsApp" del detalle arman un mensaje con
+   * los productos (nombre, cantidad, precio y total) y abren wa.me.
+   * El checkout (Payway + transferencia) y sus endpoints quedan intactos:
+   * para volver a usarlo alcanza con poner COMPRA_ONLINE_HABILITADA = true.
+   * ------------------------------------------------------------ */
+  const COMPRA_ONLINE_HABILITADA = false;
+  if (!COMPRA_ONLINE_HABILITADA) document.body.classList.add('compra-whatsapp');
+
+  function normalizarWaNumero(n){
+    return String(n || '').replace(/\D/g, '');
+  }
+  // Número público de WhatsApp: el mismo que ya usa el botón "Pedir por
+  // WhatsApp" de la zona (#ctaWhatsappZona); si /config-publico trae
+  // whatsappNumero (WHATSAPP_NUMERO_CONTACTO), manda ese.
+  let whatsappNumeroPedidos = (() => {
+    const cta = document.getElementById('ctaWhatsappZona');
+    const m = cta && String(cta.getAttribute('href') || '').match(/wa\.me\/(\d+)/);
+    return m ? m[1] : '';
+  })();
+  fetch('/config-publico').then((r) => r.json()).then((data) => {
+    const num = normalizarWaNumero(data && data.whatsappNumero);
+    if (num) whatsappNumeroPedidos = num;
+  }).catch(() => {});
+
+  function lineaPedidoWhatsapp(nombre, cantidad, precio){
+    const pieza = String(nombre || '').trim();
+    const qty = Number(cantidad) || 1;
+    const precioNum = Number(precio);
+    if (!Number.isFinite(precioNum) || precioNum <= 0) return '- ' + pieza + ' x' + qty;
+    return '- ' + pieza + ' x' + qty + ' ($' + precioNum + ' c/u) = $' + (precioNum * qty);
+  }
+
+  function mensajePedidoWhatsapp(items){
+    const lista = Array.isArray(items) ? items : [];
+    const lineas = lista.map((it) => lineaPedidoWhatsapp(it.nombre, it.cantidad, it.precio));
+    const total = lista.reduce((acc, it) => acc + (Number(it.precio) || 0) * (Number(it.cantidad) || 1), 0);
+    return 'Hola! Quiero hacer este pedido:\n' + lineas.join('\n')
+      + (total > 0 ? '\nTotal: $' + total : '');
+  }
+
+  function abrirWhatsappPedido(texto){
+    const num = normalizarWaNumero(whatsappNumeroPedidos);
+    if (!num) return;
+    // Igual que PROA: un <a> clickeado (no window.open) para no perder la
+    // pestaña ni el carrito si el navegador bloquea popups.
+    const a = document.createElement('a');
+    a.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(texto);
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function pedirCarritoPorWhatsapp(){
+    const items = obtenerCarrito();
+    if (items.length === 0) return;
+    abrirWhatsappPedido(mensajePedidoWhatsapp(items));
+  }
+
+  function pedirProductoPorWhatsapp(producto){
+    if (!producto) return;
+    abrirWhatsappPedido(mensajePedidoWhatsapp([{ nombre: producto.nombre, cantidad: 1, precio: producto.precio }]));
+  }
+
   const CLAVE_CARRITO = 'lon_carrito';
   const pantallaCarrito = document.getElementById('pantallaCarrito');
   const btnAbrirCarrito = document.getElementById('btnAbrirCarrito');
@@ -2129,6 +2201,7 @@
   });
   btnIrAPagarCarrito.addEventListener('click', () => {
     if (obtenerCarrito().length === 0) return;
+    if (!COMPRA_ONLINE_HABILITADA) { pedirCarritoPorWhatsapp(); return; }
     pantallaCarrito.classList.add('hidden');
     abrirCheckoutDesdeCarrito();
   });
