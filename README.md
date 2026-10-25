@@ -113,12 +113,15 @@ y usar esa URL final desde el celular.
 
 ## SEO (cómo aparece el sitio en Google)
 
-El catálogo es una sola página que arma los productos con JavaScript y refleja
-el producto abierto en la URL (`/?producto=slug-del-nombre`). Para una persona
+La home (`/`) es la landing (`public/landing.html`). El catálogo vive en
+`/catalogo` (`public/index.html`): es una sola página que arma los productos con
+JavaScript y refleja el producto abierto en la URL
+(`/catalogo?producto=slug-del-nombre`). Los links viejos `/?producto=…` y
+`/index.html` se redirigen con 301 a `/catalogo` conservando el query. Para una persona
 eso funciona bien, pero un buscador pide la URL al servidor y recibiría siempre
 el mismo HTML — mismo título y mismo canonical para todos los productos.
 
-`seo.js` resuelve eso: intercepta la home **antes** de `express.static` y, si la
+`seo.js` resuelve eso: intercepta `/catalogo` **antes** de `express.static` y, si la
 URL trae `?producto=`, reemplaza el bloque de meta tags del HTML por uno propio
 de ese producto (título, descripción, imagen para compartir y schema `Product`
 con precio y stock). El frontend no cambia: sigue leyendo `?producto=` igual.
@@ -127,8 +130,9 @@ Piezas:
 
 | Archivo | Qué hace |
 |---|---|
-| `seo.js` | Meta tags por producto + `/sitemap.xml` generado desde el catálogo |
-| `public/index.html` | Meta tags de la home, entre las marcas `SEO:INICIO` / `SEO:FIN` |
+| `seo.js` | Ruteo `/` (landing) y `/catalogo`, 301 de `/?producto=`, meta tags por producto + `/sitemap.xml` generado desde el catálogo |
+| `public/index.html` | Catálogo (`/catalogo`); sus meta tags van entre las marcas `SEO:INICIO` / `SEO:FIN` |
+| `public/landing.html` | Landing (`/`), con el `<head>` SEO de la home |
 | `public/robots.txt` | Permite indexar el catálogo, bloquea admin y checkout |
 
 Cosas a tener en cuenta al tocar esto:

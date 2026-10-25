@@ -1,9 +1,11 @@
 /* ============================================================
  *  SEO — meta tags dinamicos por producto + sitemap
  * ============================================================
- * El catalogo es una sola pagina (public/index.html) que arma los
- * productos con JavaScript, y refleja el producto abierto en la URL
- * (?producto=slug-del-nombre). Eso funciona perfecto para una persona,
+ * El catalogo es una sola pagina (public/index.html, servida en
+ * /catalogo) que arma los productos con JavaScript, y refleja el
+ * producto abierto en la URL (/catalogo?producto=slug-del-nombre).
+ * La home (/) es la landing (public/landing.html); los links viejos
+ * /?producto=... se redirigen con 301 a /catalogo?producto=... Eso funciona perfecto para una persona,
  * pero NO para Google: el buscador pide la URL al servidor y recibe
  * siempre el mismo HTML, con el mismo <title>, la misma descripcion y
  * el mismo canonical apuntando a la home. Resultado: ningun producto
@@ -26,6 +28,10 @@ const fs = require('fs');
 const path = require('path');
 
 const RUTA_INDEX = path.join(__dirname, 'public', 'index.html');
+const RUTA_LANDING = path.join(__dirname, 'public', 'landing.html');
+
+// Ruta publica del catalogo (antes era la home).
+const RUTA_CATALOGO = '/catalogo';
 
 // Los comentarios que delimitan el bloque de meta tags dentro de
 // index.html. Todo lo que este entre estas dos marcas se reemplaza
@@ -141,20 +147,35 @@ function crearCargadorCacheado(cargarProductos) {
  * index.html en memoria
  * ------------------------------------------------------------ */
 
-let indexCache = null;
-let indexMtime = 0;
+const cacheArchivos = new Map();
 
 /* Lee public/index.html desde disco, pero solo si cambio desde la
    ultima vez (comparando la fecha de modificacion). Asi no leemos un
    archivo de ~100 KB en cada request, pero tampoco hace falta reiniciar
    el servidor para ver un cambio en el HTML. */
+function leerArchivoCacheado(ruta) {
+  const stat = fs.statSync(ruta);
+  const previo = cacheArchivos.get(ruta);
+  if (previo && previo.mtimeMs === stat.mtimeMs) return previo.html;
+  const html = fs.readFileSync(ruta, 'utf8');
+  cacheArchivos.set(ruta, { html, mtimeMs: stat.mtimeMs });
+  return html;
+}
+
 function leerIndex() {
-  const stat = fs.statSync(RUTA_INDEX);
-  if (!indexCache || stat.mtimeMs !== indexMtime) {
-    indexCache = fs.readFileSync(RUTA_INDEX, 'utf8');
-    indexMtime = stat.mtimeMs;
-  }
-  return indexCache;
+  return leerArchivoCacheado(RUTA_INDEX);
+}
+
+function leerLanding() {
+  return leerArchivoCacheado(RUTA_LANDING);
+}
+
+/* Query string original (con el "?"), tal cual vino, para conservarlo
+   en las redirecciones 301. */
+function queryOriginal(req) {
+  const url = req.originalUrl || req.url || '';
+  const i = url.indexOf('?');
+  return i === -1 ? '' : url.slice(i);
 }
 
 /* ------------------------------------------------------------
@@ -167,7 +188,7 @@ function leerIndex() {
    busqueda. */
 function metaTagsProducto(producto, urlBase) {
   const nombre = producto.nombre || '';
-  const url = `${urlBase}/?producto=${encodeURIComponent(slugProducto(producto))}`;
+  const url = `${urlBase}${RUTA_CATALOGO}?producto=${encodeURIComponent(slugProducto(producto))}`;
   const titulo = `${nombre} | ${NOMBRE_NEGOCIO}`;
 
   // Preferimos la descripcion real cargada en la planilla; si no hay,
@@ -243,18 +264,18 @@ ${jsonSeguro(schema)}
    se oculto o se borro de la planilla). La pagina sigue abriendo el
    catalogo normal — no le rompemos la navegacion a nadie que tenga el
    link guardado — pero le decimos a Google que no la indexe y que la
-   version buena es la home. Sin esto, cada producto discontinuado deja
+   version buena es el catalogo (/catalogo). Sin esto, cada producto discontinuado deja
    una URL fantasma compitiendo en el buscador. */
 function metaTagsProductoInexistente(urlBase) {
   return `<title>Catálogo de budines artesanales en San Isidro | ${NOMBRE_NEGOCIO}</title>
 <meta name="description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.">
-<link rel="canonical" href="${escaparAtributo(`${urlBase}/`)}">
+<link rel="canonical" href="${escaparAtributo(`${urlBase}${RUTA_CATALOGO}`)}">
 <meta name="robots" content="noindex, follow">`;
 }
 
 
 /* Lista de productos en <noscript> para crawlers sin JS (anti-SPA).
-   Se inyecta en home entre CATALOGO_SSR:INICIO / FIN. */
+   Se inyecta en /catalogo entre CATALOGO_SSR:INICIO / FIN. */
 const MARCA_CATALOGO_INICIO = '<!-- CATALOGO_SSR:INICIO -->';
 const MARCA_CATALOGO_FIN = '<!-- CATALOGO_SSR:FIN -->';
 
@@ -264,7 +285,7 @@ function bloqueCatalogoNoscript(productos, urlBase) {
   const lis = items.map((prod) => {
     const nombre = escaparAtributo(prod.nombre || prod.skuGeneral || 'Producto');
     const precio = prod.precio != null && prod.precio !== '' ? ` — $${escaparAtributo(String(prod.precio))}` : '';
-    const href = `${urlBase}/?producto=${encodeURIComponent(slugProducto(prod))}`;
+    const href = `${urlBase}${RUTA_CATALOGO}?producto=${encodeURIComponent(slugProducto(prod))}`;
     return `        <li><a href="${escaparAtributo(href)}">${nombre}</a>${precio}</li>`;
   }).join('\n');
   return `    <noscript class="catalogo-ssr-noscript">
@@ -302,26 +323,46 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
   const base = String(urlBase || '').replace(/\/+$/, '');
   const obtenerProductos = crearCargadorCacheado(cargarProductos);
 
-  /* Home + detalle de producto. */
-  app.get('/', async (req, res, next) => {
+  /* Home = landing. Los links viejos /?producto=<slug> (compartidos por
+     WhatsApp, QR, Google) se mandan con 301 al catalogo nuevo,
+     conservando el query entero. */
+  app.get('/', (req, res, next) => {
+    if (req.query.producto !== undefined) {
+      return res.redirect(301, `${RUTA_CATALOGO}${queryOriginal(req)}`);
+    }
+    try {
+      return res.type('html').send(leerLanding());
+    } catch (err) {
+      console.error('SEO: no se pudo leer landing.html:', err.message);
+      return next();
+    }
+  });
+
+  /* URLs viejas/directas de los archivos: /index.html era el catalogo y
+     /landing.html es la home; se redirigen a su ruta canonica. */
+  app.get('/index.html', (req, res) => res.redirect(301, `${RUTA_CATALOGO}${queryOriginal(req)}`));
+  app.get('/landing.html', (req, res) => res.redirect(301, `/${queryOriginal(req)}`));
+
+  /* Catalogo + detalle de producto. */
+  app.get(RUTA_CATALOGO, async (req, res, next) => {
     let html;
     try {
       html = leerIndex();
     } catch (err) {
       console.error('SEO: no se pudo leer index.html:', err.message);
-      return next(); // que lo resuelva express.static como antes
+      return next();
     }
 
     const valorProducto = req.query.producto;
 
-    // Sin ?producto= es la home: meta tags ya vienen en el HTML;
+    // Sin ?producto= es el catalogo: meta tags ya vienen en el HTML;
     // inyectamos el catálogo SSR (noscript) con precios/nombres actuales.
     if (!valorProducto || typeof valorProducto !== 'string') {
       try {
         const productosHome = await obtenerProductos();
         html = inyectarCatalogoNoscript(html, productosHome, base);
       } catch (err) {
-        console.error('SEO: no se pudo inyectar catálogo SSR en home:', err.message);
+        console.error('SEO: no se pudo inyectar catálogo SSR en /catalogo:', err.message);
       }
       return res.type('html').send(html);
     }
@@ -368,8 +409,9 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
     try {
       const urls = [
         { loc: `${base}/`, priority: '1.0', changefreq: 'daily' },
+        { loc: `${base}${RUTA_CATALOGO}`, priority: '0.9', changefreq: 'daily' },
         ...productos.map((p) => ({
-          loc: `${base}/?producto=${encodeURIComponent(slugProducto(p))}`,
+          loc: `${base}${RUTA_CATALOGO}?producto=${encodeURIComponent(slugProducto(p))}`,
           priority: '0.8',
           changefreq: 'weekly',
         })),
@@ -396,6 +438,11 @@ ${urls.map((u) => `  <url>
     <loc>${escaparAtributo(`${base}/`)}</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${escaparAtributo(`${base}${RUTA_CATALOGO}`)}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
 </urlset>
 `;

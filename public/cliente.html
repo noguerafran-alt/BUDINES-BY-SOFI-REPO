@@ -142,7 +142,7 @@
 <body>
 
 <div class="barra-superior-catalogo">
-  <a class="volver btn-volver-flecha" href="/" title="Volver al catálogo" aria-label="Volver al catálogo">←</a>
+  <a class="volver btn-volver-flecha" href="/catalogo" title="Volver al catálogo" aria-label="Volver al catálogo">←</a>
   <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
     <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
   </a>
@@ -310,7 +310,7 @@
     const sku = pendingSku;
     if (!sku) return;
     const skuGeneral = extraerSkuGeneral(sku);
-    window.location.href = `/?producto=${encodeURIComponent(skuGeneral)}`;
+    window.location.href = `/catalogo?producto=${encodeURIComponent(skuGeneral)}`;
   });
 
   btnCerrarCliente.addEventListener('click', () => {
