@@ -224,18 +224,7 @@ function metaTagsProducto(producto, urlBase) {
   // El bloque de oferta solo tiene sentido si hay un precio cargado —
   // un Product con offers sin price es un error de validacion en Google
   // Search Console, peor que no mandar la oferta.
-  if (producto.precio) {
-    schema.offers = {
-      '@type': 'Offer',
-      price: String(producto.precio),
-      priceCurrency: 'ARS',
-      availability: producto.disponible
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      url,
-      seller: { '@type': 'Organization', name: NOMBRE_NEGOCIO },
-    };
-  }
+  schema.offers = ofertaProducto(producto, url);
 
   return `<title>${escaparAtributo(titulo)}</title>
 <meta name="description" content="${escaparAtributo(descripcion)}">
@@ -258,6 +247,65 @@ function metaTagsProducto(producto, urlBase) {
 <script type="application/ld+json">
 ${jsonSeguro(schema)}
 </script>`;
+}
+
+/* Offer de un producto, o undefined si no hay precio cargado: un Offer
+   sin price es error de validacion en Search Console. */
+function ofertaProducto(producto, url) {
+  if (!producto.precio) return undefined;
+  return {
+    '@type': 'Offer',
+    price: String(producto.precio),
+    priceCurrency: 'ARS',
+    availability: producto.disponible
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock',
+    url,
+    seller: { '@type': 'Organization', name: NOMBRE_NEGOCIO },
+  };
+}
+
+/* ItemList de /catalogo. El catalogo se pinta por JS y el <noscript>
+   solo trae nombre y precio sueltos; esto le da a buscadores y
+   asistentes cada budin como Product con su precio en ARS. */
+function jsonLdCatalogo(productos, urlBase) {
+  const items = Array.isArray(productos) ? productos : [];
+  if (items.length === 0) return '';
+  const lista = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Catálogo de ${NOMBRE_NEGOCIO}`,
+    url: `${urlBase}${RUTA_CATALOGO}`,
+    numberOfItems: items.length,
+    itemListElement: items.map((prod, i) => {
+      const url = `${urlBase}${RUTA_CATALOGO}?producto=${encodeURIComponent(slugProducto(prod))}`;
+      const foto = prod.foto || (prod.fotos && prod.fotos[0]);
+      return {
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Product',
+          name: prod.nombre || prod.skuGeneral || 'Producto',
+          url,
+          image: foto ? urlAbsoluta(urlBase, foto) : undefined,
+          sku: prod.skuGeneral || undefined,
+          category: prod.categoriaVisible || prod.categoria || undefined,
+          brand: { '@type': 'Brand', name: NOMBRE_NEGOCIO },
+          offers: ofertaProducto(prod, url),
+        },
+      };
+    }),
+  };
+  return `<script type="application/ld+json">
+${jsonSeguro(lista)}
+</script>`;
+}
+
+function inyectarEnHead(html, bloque) {
+  if (!bloque) return html;
+  const i = html.indexOf('</head>');
+  if (i === -1) return html;
+  return html.slice(0, i) + bloque + '\n' + html.slice(i);
 }
 
 /* Bloque para una URL de producto que ya no existe (se agoto el stock,
@@ -361,6 +409,7 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
       try {
         const productosHome = await obtenerProductos();
         html = inyectarCatalogoNoscript(html, productosHome, base);
+        html = inyectarEnHead(html, jsonLdCatalogo(productosHome, base));
       } catch (err) {
         console.error('SEO: no se pudo inyectar catálogo SSR en /catalogo:', err.message);
       }
@@ -389,6 +438,42 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
       + html.slice(fin);
 
     return res.type('html').send(htmlFinal);
+  });
+
+  /* llms.txt: resumen en texto plano para asistentes de IA, con los
+     mismos datos publicados en la landing y el catalogo vivo (precios
+     incluidos, porque se ven en el sitio). */
+  app.get('/llms.txt', async (req, res) => {
+    let productos = [];
+    try {
+      productos = await obtenerProductos();
+      if (!Array.isArray(productos)) productos = [];
+    } catch (err) {
+      console.error('SEO llms.txt: catálogo no disponible:', err.message);
+    }
+    const lineas = productos.map((p) => {
+      const precio = p.precio ? ` — $${p.precio} ARS` : '';
+      return `- [${p.nombre || p.skuGeneral || 'Producto'}](${base}${RUTA_CATALOGO}?producto=${encodeURIComponent(slugProducto(p))})${precio}`;
+    });
+    const texto = `# ${NOMBRE_NEGOCIO}
+
+> Budines caseros artesanales de limón y naranja en San Isidro, con pedido online. Entrega y retiro solo en San Isidro; coordinamos por WhatsApp.
+
+## Zona
+Entrega y retiro solo en el partido de San Isidro (San Isidro, Acassuso, Beccar, Martínez, Boulogne, Villa Adelina).
+
+## Cómo pedir
+Elegí tu budín en el catálogo (${base}${RUTA_CATALOGO}), confirmá el pedido y coordinamos por WhatsApp: https://wa.me/5491168239163
+
+## Catálogo
+${lineas.length ? lineas.join('\n') : `Ver ${base}${RUTA_CATALOGO}`}
+
+## Datos
+- Nombre: ${NOMBRE_NEGOCIO}
+- WhatsApp: +54 9 11 6823-9163
+- Sitio: ${base}/
+`;
+    res.status(200).type('text/plain; charset=utf-8').set('Cache-Control', 'public, max-age=300').send(texto);
   });
 
   /* Sitemap generado en el momento: la home, las paginas legales y una
