@@ -16,3 +16,9 @@ Hecho:
 - Textos de meta/schema/`seo.js`/`/llms.txt`/checkout-exito/pendiente sin "solo en San Isidro" ni lista de barrios. San Isidro queda como ubicación en title y areaServed.
 Diferido:
 - El checkout oculto (`#pantallaCheckout`) y la validación de zona en `server.js` siguen limitados a San Isidro.
+
+## 2026-11-04 — Sin flecha "volver" en el detalle de producto
+
+- `public/index.html`: se sacó el botón `#btnVolverDeDetalle` (←) del header del catálogo. Su lógica quedó como la función `volverDeDetalleAlListado()`, que sigue usando el menú ☰ cuando se elige una categoría desde el detalle.
+- Del detalle se vuelve con el menú ☰ o con el atrás del navegador (lo maneja `popstate`).
+- Las flechas ← del carrito, de "Mi cuenta" y del checkout (pantallas completas) no se tocaron.
