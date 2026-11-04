@@ -902,7 +902,6 @@
         <div class="menu-feli-shop" id="menuShop" hidden data-menu-panel></div>
       </div>
       <a class="volver icon-btn-header" id="btnIrCliente" href="/cliente.html" title="Escanear producto" aria-label="Escanear producto">📷</a>
-      <button type="button" class="volver btn-volver-flecha" id="btnVolverDeDetalle" title="Volver al catálogo" aria-label="Volver al catálogo" style="display:none;">←</button>
     </div>
     <a href="/admin.html" class="enlace-logo-header" title="Acceso admin" aria-label="Acceso admin" style="justify-self:center;">
       <img src="/budines-logo-transparente.png" alt="Budines by Sofi" class="logo-barra-catalogo">
@@ -974,23 +973,19 @@
   const catalogoDestacados = document.getElementById('catalogoDestacados');
   const catalogoPublicoLista = document.getElementById('catalogoPublicoLista');
   const catalogoDetalleContenido = document.getElementById('catalogoDetalleContenido');
-  const btnVolverDeDetalle = document.getElementById('btnVolverDeDetalle');
   const btnIrCliente = document.getElementById('btnIrCliente');
 
   // La cámara (escanear producto) solo tiene sentido en el catálogo
-  // principal; en el detalle de un producto, ese mismo lugar del header
-  // lo ocupa la flecha de volver.
+  // principal. Del detalle se vuelve con el menú ☰ o el atrás del navegador.
   function mostrarVistaListaCatalogo(){
     catalogoDetalleView.style.display = 'none';
     catalogoListaView.style.display = 'block';
     btnIrCliente.style.display = '';
-    btnVolverDeDetalle.style.display = 'none';
   }
   function mostrarVistaDetalleCatalogo(){
     catalogoListaView.style.display = 'none';
     catalogoDetalleView.style.display = 'block';
     btnIrCliente.style.display = 'none';
-    btnVolverDeDetalle.style.display = '';
   }
 
   let catalogoPublicoProductos = [];
@@ -1363,7 +1358,7 @@
           const input = document.getElementById('inputBuscarCatalogo');
           if (input) input.value = '';
         }
-        if (catalogoDetalleView.style.display !== 'none') btnVolverDeDetalle.click();
+        if (catalogoDetalleView.style.display !== 'none') volverDeDetalleAlListado();
         renderizarCatalogoPublico();
         catalogoTabsCategoria.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -1735,14 +1730,14 @@
     });
   }
 
-  btnVolverDeDetalle.addEventListener('click', () => {
+  function volverDeDetalleAlListado(){
     mostrarVistaListaCatalogo();
     const url = new URL(window.location);
     if (url.searchParams.has('producto')) {
       url.searchParams.delete('producto');
       history.pushState({}, '', url);
     }
-  });
+  }
 
   const btnMostrarBuscadorCatalogo = document.getElementById('btnMostrarBuscadorCatalogo');
   const inputBuscarCatalogo = document.getElementById('inputBuscarCatalogo');
