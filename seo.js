@@ -203,7 +203,7 @@ function metaTagsProducto(producto, urlBase) {
     producto.descripcion
       || `${nombre}${categoria ? `. ${categoria}` : ''}. Elaborado artesanalmente por ${NOMBRE_NEGOCIO}.`
         + `${producto.precio ? ` $${producto.precio}.` : ''}`
-        + ' Pedilo online en San Isidro: entrega y retiro solo ahí. Coordinamos por WhatsApp.',
+        + ' Pedilo online y coordinamos por WhatsApp.',
     155,
   );
 
@@ -316,7 +316,7 @@ function inyectarEnHead(html, bloque) {
    una URL fantasma compitiendo en el buscador. */
 function metaTagsProductoInexistente(urlBase) {
   return `<title>Catálogo de budines artesanales en San Isidro | ${NOMBRE_NEGOCIO}</title>
-<meta name="description" content="Budines caseros artesanales de limón y naranja en San Isidro. Pedilo online: entrega y retiro solo en San Isidro. Coordinamos por WhatsApp.">
+<meta name="description" content="Budines caseros artesanales, hechos a pedido en San Isidro. Elegí tu sabor, pedilo online y coordinamos por WhatsApp.">
 <link rel="canonical" href="${escaparAtributo(`${urlBase}${RUTA_CATALOGO}`)}">
 <meta name="robots" content="noindex, follow">`;
 }
@@ -457,10 +457,7 @@ function montarRutasSeo(app, { cargarProductos, urlBase }) {
     });
     const texto = `# ${NOMBRE_NEGOCIO}
 
-> Budines caseros artesanales de limón y naranja en San Isidro, con pedido online. Entrega y retiro solo en San Isidro; coordinamos por WhatsApp.
-
-## Zona
-Entrega y retiro solo en el partido de San Isidro (San Isidro, Acassuso, Beccar, Martínez, Boulogne, Villa Adelina).
+> Budines caseros artesanales, hechos a pedido en San Isidro, con pedido online; coordinamos por WhatsApp.
 
 ## Cómo pedir
 Elegí tu budín en el catálogo (${base}${RUTA_CATALOGO}), confirmá el pedido y coordinamos por WhatsApp: https://wa.me/5491168239163
