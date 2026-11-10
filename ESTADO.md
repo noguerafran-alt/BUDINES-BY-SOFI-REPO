@@ -22,3 +22,8 @@ Diferido:
 - `public/index.html`: se sacó el botón `#btnVolverDeDetalle` (←) del header del catálogo. Su lógica quedó como la función `volverDeDetalleAlListado()`, que sigue usando el menú ☰ cuando se elige una categoría desde el detalle.
 - Del detalle se vuelve con el menú ☰ o con el atrás del navegador (lo maneja `popstate`).
 - Las flechas ← del carrito, de "Mi cuenta" y del checkout (pantallas completas) no se tocaron.
+
+## 2026-11-09 — Botón flotante de Instagram a la izquierda de WhatsApp
+
+- En la landing (`public/landing.html`) y el catálogo (`public/index.html`), el único lugar con FAB de WhatsApp: se sumó un botón flotante de Instagram (`https://www.instagram.com/budinesbysofi`) a la izquierda del de WhatsApp, mismo tamaño/forma/sombra (52px, círculo, box-shadow), ícono SVG inline, `target="_blank"` `rel="noopener"` y `aria-label="Instagram de Budines by Sofi"`.
+- El chat del catálogo (💭) sigue arriba; Instagram y WhatsApp van en una fila (`.flotantes-redes`).
